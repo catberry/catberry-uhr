@@ -55,5 +55,7 @@ module.exports = {
 	registerOnClient: function (locator) {
 		var config = locator.resolve('config');
 		locator.register('uhr', ClientUHR, config, true);
-	}
+	},
+	ServerUHR: ServerUHR,
+	ClientUHR: ClientUHR
 };
