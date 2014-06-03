@@ -137,7 +137,7 @@ uhr.registerOnClient(cat.locator);
 
 ```
 
-And then you can just inject $localizationProvider into you module and use like this:
+And then you can just inject $uhr into you module and use like this:
 
 ```javascript
 function Module($uhr) {
@@ -148,7 +148,7 @@ Module.prototype.render(placeholderName, args, callback) {
 	var options = {
 		timeout: 3000,
 		data: {
-			username: 'some
+			username: 'some'
 		},
 		headers: {
 			Cookie: args.$$.$cookies.toString()
