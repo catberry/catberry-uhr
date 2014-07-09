@@ -145,10 +145,7 @@ describe('UHR', function () {
 			var server = createServer(8093, function (request, response) {
 				assert.strictEqual(request.headers.host, 'localhost:8093');
 				assert.strictEqual(typeof(request.headers.accept), 'string');
-				assert.strictEqual(typeof(request.headers.pragma), 'string');
 				assert.strictEqual(typeof(request.headers['accept-charset']),
-					'string');
-				assert.strictEqual(typeof(request.headers['cache-control']),
 					'string');
 				assert.strictEqual(typeof(request.headers['user-agent']),
 					'string');
@@ -503,6 +500,42 @@ describe('UHR', function () {
 				assert.strictEqual(error, null);
 				assert.strictEqual(status.code, 200);
 				assert.strictEqual(data, '');
+			});
+		});
+
+		it('should receive entity when error status', function (done) {
+			var entity = 'test entity text';
+			var server = createServer(8093, function (request, response) {
+				assert.strictEqual(request.url, '/page');
+				assert.strictEqual(request.headers['content-type'],
+					'text/plain; charset=UTF-8');
+
+				var data = '';
+				request.setEncoding('utf8');
+				request.on('data', function (chunk) {
+					data += chunk;
+				});
+				request.on('end', function () {
+					assert.deepEqual(data, entity);
+					response.writeHead(400, {
+						'content-type': 'text/plain; charset=UTF-8'
+					});
+					response.end(data);
+					server.close(function () {
+						done();
+					});
+				});
+			});
+
+			var uhr = new UHR();
+			uhr.request({
+				url: 'http://localhost:8093/page',
+				method: 'POST',
+				data: entity
+			}, function (error, status, data) {
+				assert.strictEqual(error, null);
+				assert.strictEqual(status.code, 400);
+				assert.strictEqual(data, entity);
 			});
 		});
 	});
