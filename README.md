@@ -7,7 +7,7 @@ Catberry's modules run both at server and browser and it is very useful to have 
 It has one interface and different implementations on server and browser.
 
 At server it uses node's "http.request" or "https.request" (depend on specified protocol in URL).
-At browser it uses jQuery AJAX implementation.
+At browser it uses native XmlHttpRequest.
 
 This module was developed using [HTTP/1.1v2 RFC 2616](http://www.w3.org/Protocols/rfc2616).
 
@@ -88,7 +88,7 @@ In callback you always receive:
 
 * Error (if it has happened)
 * Status object with HTTP status code, status text and response headers
-* Response body as plain text
+* Response body as plain text or object (depends on Content-Type in response headers)
 
 Status object looks like this:
 
