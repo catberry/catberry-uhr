@@ -30,7 +30,8 @@
 
 'use strict';
 
-var ServerUHR = require('./lib/server/UHR'),
+var /**no-client-bundle**/
+	ServerUHR = require('./lib/server/UHR'),
 	ClientUHR = require('./lib/client/UHR');
 
 module.exports = {
@@ -39,12 +40,6 @@ module.exports = {
 	 * @param {ServiceLocator} locator Catberry's service locator.
 	 */
 	registerOnServer: function (locator) {
-
-		// WARNING!!!
-		// we must do that at server TO NOT include this module into
-		// client-bundle
-		locator.registerInstance('serverModulePath', './lib/server/UHR');
-
 		var config = locator.resolve('config');
 		locator.register('uhr', ServerUHR, config, true);
 	},

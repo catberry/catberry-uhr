@@ -2,14 +2,17 @@
 [![NPM](https://nodei.co/npm/catberry-uhr.png)](https://nodei.co/npm/catberry-uhr/)
 
 ##Description
-Catberry's modules run both at server and browser and it is very useful to have universal http(s) request implementation.
+Catberry's modules run both at server and in browser and it is very useful to 
+have universal http(s) request implementation.
 
-It has one interface and different implementations on server and browser.
+It has one interface and different implementations at server and in browser.
 
-At server it uses node's "http.request" or "https.request" (depend on specified protocol in URL).
-At browser it uses jQuery AJAX implementation.
+At server it uses node's "http.request" or "https.request" 
+(depend on specified protocol in URL).
+At browser it uses native XmlHttpRequest.
 
-This module was developed using [HTTP/1.1v2 RFC 2616](http://www.w3.org/Protocols/rfc2616).
+This module was developed using [HTTP/1.1v2 RFC 2616]
+(http://www.w3.org/Protocols/rfc2616).
 
 It supports:
 
@@ -72,6 +75,7 @@ Options support:
 
 ```javascript
 {
+	method: 'GET',
 	timeout: 30000,
 	headers: {
 		Cookie: 'name=value'
@@ -88,7 +92,7 @@ In callback you always receive:
 
 * Error (if it has happened)
 * Status object with HTTP status code, status text and response headers
-* Response body as plain text
+* Response body as plain text or object (depends on Content-Type in response headers)
 
 Status object looks like this:
 
@@ -106,38 +110,10 @@ Status object looks like this:
 ```
 
 ##Usage
-To use this module you must register its components into catberry's [Service Locator](https://github.com/pragmadash/catberry-locator) like this:
+If you are using [Catberry Framework](https://github.com/pragmadash/catberry)
+it is already included and registered in Service Locator.
 
-In server.js
-
-```javascript
-var uhr = require('catberry-uhr'),
-	catberry = require('catberry'),
-	config = require('./config-server'),
-	app = connect();
-	cat = catberry.create(config);
-
-// register UHR components
-uhr.registerOnServer(cat.locator);
-
-app.use(cat.getMiddleware());
-...
-```
-
-In client.js
-
-```javascript
-var uhr = require('catberry-uhr'),
-	catberry = require('catberry'),
-	config = require('./config-client'),
-	cat = catberry.create(config);
-
-// register localization components in locator
-uhr.registerOnClient(cat.locator);
-
-```
-
-And then you can just inject $uhr into you module and use like this:
+You can just inject $uhr into you module and use like this:
 
 ```javascript
 function Module($uhr) {
@@ -167,11 +143,16 @@ Module.prototype.render(placeholderName, args, callback) {
 ```
 
 ##Contribution
-If you have found a bug, please create pull request with mocha unit-test which reproduces it or describe all details in issue if you can not implement test.
-If you want to propose some improvements just create issue or pull request but please do not forget to use **npm test** to be sure that you code is awesome.
+If you have found a bug, please create pull request with [mocha]
+(https://www.npmjs.org/package/mocha) unit-test which reproduces it or describe 
+all details in issue if you can not implement test. If you want to propose some 
+improvements just create issue or pull request but please do not forget to use 
+`npm test` to be sure that your code is awesome.
 
-All changes should satisfy this [Code Style Guide](https://github.com/pragmadash/catberry/blob/master/docs/code-style.md).
+All changes should satisfy this [Code Style Guide]
+(docs/code-style-guide.md).
 
-Also your changes should be covered by unit tests using [mocha](https://www.npmjs.org/package/mocha).
+Also your changes should be covered by unit tests using [mocha]
+(https://www.npmjs.org/package/mocha).
 
 Denis Rechkunov <denis.rechkunov@gmail.com>
