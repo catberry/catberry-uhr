@@ -120,14 +120,14 @@ function Module($uhr) {
 	this._uhr = $uhr;
 }
 
-Module.prototype.render(placeholderName, args, callback) {
+Module.prototype.render(placeholderName, callback) {
 	var options = {
 		timeout: 3000,
 		data: {
 			username: 'some'
 		},
 		headers: {
-			Cookie: args.$$.$cookies.toString()
+			Authorization: 'Bearer somecrazytoken'
 		}
 	};
 	this._uhr.get('http://localhost/api/user', options,
