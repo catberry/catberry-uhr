@@ -7,9 +7,12 @@ have universal http(s) request implementation.
 
 It has one interface and different implementations at server and in browser.
 
-At server it uses node's "http.request" or "https.request" 
+At server it uses node's [http.request]
+(http://nodejs.org/api/http.html#http_event_request) or [https.request]
+(http://nodejs.org/api/https.html#https_https_request_options_callback).
 (depend on specified protocol in URL).
-At browser it uses native XmlHttpRequest.
+At browser it uses native [XmlHttpRequest]
+(https://developer.mozilla.org/ru/docs/Web/API/XMLHttpRequest).
 
 This module was developed using [HTTP/1.1v2 RFC 2616]
 (http://www.w3.org/Protocols/rfc2616).
@@ -71,7 +74,7 @@ UHRBase.prototype.delete = function (url, options, callback) { }
 UHRBase.prototype.request = function (parameters, callback) { }
 ```
 
-Options support:
+##Request options example
 
 ```javascript
 {
@@ -89,11 +92,13 @@ Options support:
 In case you do GET/DELETE request "data" will be passed as query string 
 otherwise it will be passed as JSON via request stream.
 
-In callback you always receive:
+##Callback
+In callback you will receive:
 
-* Error (if it has happened)
+* Error (if transport level error was happened)
 * Status object with HTTP status code, status text and response headers
-* Response body as plain text or object (depends on Content-Type in response headers)
+* Response body as plain text or object 
+(depends on Content-Type in response headers)
 
 Status object looks like this:
 
@@ -114,7 +119,7 @@ Status object looks like this:
 If you are using [Catberry Framework](https://github.com/pragmadash/catberry)
 it is already included and registered in Service Locator.
 
-You can just inject `$uhr` into you module and use like this:
+You can just inject `$uhr` into your module and use like this:
 
 ```javascript
 function Module($uhr) {
