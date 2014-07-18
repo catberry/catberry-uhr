@@ -1,4 +1,4 @@
-#Universal HTTP(S) request for catberry[![Build Status](https://travis-ci.org/pragmadash/catberry-uhr.png?branch=master)](https://travis-ci.org/pragmadash/catberry-uhr)
+#Universal HTTP(S) Request for Catberry[![Build Status](https://travis-ci.org/pragmadash/catberry-uhr.png?branch=master)](https://travis-ci.org/pragmadash/catberry-uhr)
 [![NPM](https://nodei.co/npm/catberry-uhr.png)](https://nodei.co/npm/catberry-uhr/)
 
 ##Description
@@ -86,7 +86,8 @@ Options support:
 }
 ```
 
-In case you do GET/DELETE request "data" will be passed as query string otherwise it will be passed as JSON via request stream.
+In case you do GET/DELETE request "data" will be passed as query string 
+otherwise it will be passed as JSON via request stream.
 
 In callback you always receive:
 
@@ -113,7 +114,7 @@ Status object looks like this:
 If you are using [Catberry Framework](https://github.com/pragmadash/catberry)
 it is already included and registered in Service Locator.
 
-You can just inject $uhr into you module and use like this:
+You can just inject `$uhr` into you module and use like this:
 
 ```javascript
 function Module($uhr) {
