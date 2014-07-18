@@ -100,7 +100,7 @@ Status object looks like this:
 ```javascript
 {
 	code: 200,
-	text: OK,
+	text: 'OK',
 	headers: {
 		'Cache-Control': 'no-cache',
         'Content-Length': '1',
