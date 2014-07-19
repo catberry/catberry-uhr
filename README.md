@@ -1,4 +1,4 @@
-#Universal HTTP(S) Request for Catberry[![Build Status](https://travis-ci.org/pragmadash/catberry-uhr.png?branch=master)](https://travis-ci.org/pragmadash/catberry-uhr)
+#Universal HTTP(S) Request for Catberry[![Build Status](https://travis-ci.org/catberry/catberry-uhr.png?branch=master)](https://travis-ci.org/catberry/catberry-uhr)
 [![NPM](https://nodei.co/npm/catberry-uhr.png)](https://nodei.co/npm/catberry-uhr/)
 
 ##Description
@@ -116,7 +116,7 @@ Status object looks like this:
 ```
 
 ##Usage
-If you are using [Catberry Framework](https://github.com/pragmadash/catberry)
+If you are using [Catberry Framework](https://github.com/catberry/catberry)
 it is already included and registered in Service Locator.
 
 You can just inject `$uhr` into your module and use like this:
