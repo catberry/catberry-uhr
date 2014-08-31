@@ -36,70 +36,69 @@ var assert = require('assert'),
 	http = require('http'),
 	UHR = require('../../../lib/server/UHR');
 
+global.Promise = require('promise');
+
 describe('UHR', function () {
 	describe('#request', function () {
-		it('should return error if parameters is not an object',
+		it('should throw error if parameters is not an object',
 			function (done) {
 				var uhr = new UHR();
-				uhr.request('http://localhost:80/page',
-					function (error, status, data) {
-						assert.strictEqual(error instanceof Error, true);
-						assert.strictEqual(status, undefined);
-						assert.strictEqual(data, undefined);
-						done();
-					});
+				try {
+					uhr.request('http://localhost:80/page');
+					assert.fail('Should be exception');
+				} catch (e) {
+					done();
+				}
 			});
 
-		it('should return error if method is not specified', function (done) {
+		it('should throw error if method is not specified', function (done) {
 			var uhr = new UHR();
-			uhr.request({
-				url: 'http://localhost:80/page'
-			}, function (error, status, data) {
-				assert.strictEqual(error instanceof Error, true);
-				assert.strictEqual(status, undefined);
-				assert.strictEqual(data, undefined);
+			try {
+				uhr.request({url: 'http://localhost:80/page'});
+				assert.fail('Should be exception');
+			} catch (e) {
 				done();
-			});
+			}
 		});
 
-		it('should return error if wrong method is specified', function (done) {
+		it('should throw error if wrong method is specified', function (done) {
 			var uhr = new UHR();
-			uhr.request({
-				url: 'http://localhost:80/page',
-				method: 'wrong'
-			}, function (error, status, data) {
-				assert.strictEqual(error instanceof Error, true);
-				assert.strictEqual(status, undefined);
-				assert.strictEqual(data, undefined);
-				done();
-			});
-		});
-
-		it('should return error if URL is not specified', function (done) {
-			var uhr = new UHR();
-			uhr.request({
-				method: 'GET'
-			}, function (error, status, data) {
-				assert.strictEqual(error instanceof Error, true);
-				assert.strictEqual(status, undefined);
-				assert.strictEqual(data, undefined);
-				done();
-			});
-		});
-
-		it('should return error if wrong timeout is specified',
-			function (done) {
-				var uhr = new UHR();
+			try {
 				uhr.request({
 					url: 'http://localhost:80/page',
-					method: 'GET',
-					timeout: 'wrong'
-				}, function (error, status, data) {
-					assert.strictEqual(error instanceof Error, true);
-					assert.strictEqual(status, undefined);
-					assert.strictEqual(data, undefined);
-					done();
+					method: 'wrong'
 				});
+				assert.fail('Should be exception');
+			} catch (e) {
+				done();
+			}
+		});
+
+		it('should throw error if URL is not specified', function (done) {
+			var uhr = new UHR();
+			try {
+				uhr.request({
+					method: 'GET'
+				});
+				assert.fail('Should be exception');
+			} catch (e) {
+				done();
+			}
+		});
+
+		it('should throw error if wrong timeout is specified',
+			function (done) {
+				var uhr = new UHR();
+				try {
+					uhr.request({
+						url: 'http://localhost:80/page',
+						method: 'GET',
+						timeout: 'wrong'
+					});
+					assert.fail('Should be exception');
+				} catch (e) {
+					done();
+				}
 			});
 
 		it('should end request if timeout', function (done) {
@@ -115,10 +114,10 @@ describe('UHR', function () {
 				url: 'http://localhost:8081/page',
 				method: 'GET',
 				timeout: 1000
-			}, function (error, status, data) {
-				assert.strictEqual(error instanceof Error, true);
-				assert.strictEqual(status, undefined);
-				assert.strictEqual(data, undefined);
+			}).then(function () {
+				assert.fail('Should not be fulfilled');
+			}, function (reason) {
+				assert.strictEqual(reason instanceof Error, true);
 				done();
 			});
 		});
@@ -134,10 +133,11 @@ describe('UHR', function () {
 			uhr.request({
 				url: 'http://localhost:8082/page',
 				method: 'GET'
-			}, function (error, status) {
-				assert.strictEqual(error, null);
-				assert.strictEqual(status.code, 200);
+			}).then(function (result) {
+				assert.strictEqual(result.status.code, 200);
 				done();
+			}, function () {
+				assert.fail('Should be fulfilled');
 			});
 		});
 
@@ -145,10 +145,14 @@ describe('UHR', function () {
 			var server = createServer(8093, function (request, response) {
 				assert.strictEqual(request.headers.host, 'localhost:8093');
 				assert.strictEqual(typeof(request.headers.accept), 'string');
-				assert.strictEqual(typeof(request.headers['accept-charset']),
-					'string');
-				assert.strictEqual(typeof(request.headers['user-agent']),
-					'string');
+				assert.strictEqual(
+					typeof(request.headers['accept-charset']),
+					'string'
+				);
+				assert.strictEqual(
+					typeof(request.headers['user-agent']),
+					'string'
+				);
 				response.end();
 				server.close(function () {
 					done();
@@ -159,9 +163,10 @@ describe('UHR', function () {
 			uhr.request({
 				url: 'http://localhost:8093/page',
 				method: 'GET'
-			}, function (error, status) {
-				assert.strictEqual(error, null);
-				assert.strictEqual(status.code, 200);
+			}).then(function (result) {
+				assert.strictEqual(result.status.code, 200);
+			}, function () {
+				assert.fail('Should be fulfilled');
 			});
 		});
 
@@ -182,13 +187,16 @@ describe('UHR', function () {
 			uhr.request({
 				url: 'http://localhost:8083/page',
 				method: 'GET'
-			}, function (error, status, data) {
-				assert.strictEqual(error, null);
-				assert.strictEqual(status.code, 200);
-				assert.strictEqual(data.test, obj.test);
-				assert.strictEqual(Number(data.test2), obj.test2);
-				assert.strictEqual(Boolean(data.boolean), obj.boolean);
+			}).then(function (result) {
+				assert.strictEqual(result.status.code, 200);
+				assert.strictEqual(result.content.test, obj.test);
+				assert.strictEqual(Number(result.content.test2), obj.test2);
+				assert.strictEqual(
+					Boolean(result.content.boolean), obj.boolean
+				);
 				done();
+			}, function () {
+				assert.fail('Should be fulfilled');
 			});
 		});
 
@@ -199,8 +207,7 @@ describe('UHR', function () {
 				boolean: true
 			};
 			var server = createServer(8084, function (request, response) {
-				response.setHeader('Content-Type',
-					'application/json');
+				response.setHeader('Content-Type', 'application/json');
 				response.end(JSON.stringify(obj));
 				server.close();
 			});
@@ -209,11 +216,12 @@ describe('UHR', function () {
 			uhr.request({
 				url: 'http://localhost:8084/page',
 				method: 'GET'
-			}, function (error, status, data) {
-				assert.strictEqual(error, null);
-				assert.strictEqual(status.code, 200);
-				assert.deepEqual(data, obj);
+			}).then(function (result) {
+				assert.strictEqual(result.status.code, 200);
+				assert.deepEqual(result.content, obj);
 				done();
+			}, function () {
+				assert.fail('Should be fulfilled');
 			});
 		});
 
@@ -228,11 +236,12 @@ describe('UHR', function () {
 			uhr.request({
 				url: 'http://localhost:8085/page',
 				method: 'GET'
-			}, function (error, status, data) {
-				assert.strictEqual(error, null);
-				assert.strictEqual(status.code, 200);
-				assert.strictEqual(data, 'test');
+			}).then(function (result) {
+				assert.strictEqual(result.status.code, 200);
+				assert.strictEqual(result.content, 'test');
 				done();
+			}, function () {
+				assert.fail('Should be fulfilled');
 			});
 		});
 
@@ -252,11 +261,12 @@ describe('UHR', function () {
 			uhr.request({
 				url: 'http://localhost:8086/page',
 				method: 'GET'
-			}, function (error, status, data) {
-				assert.strictEqual(error, null);
-				assert.strictEqual(status.code, 200);
-				assert.strictEqual(data, 'test gzip');
+			}).then(function (result) {
+				assert.strictEqual(result.status.code, 200);
+				assert.strictEqual(result.content, 'test gzip');
 				done();
+			}, function () {
+				assert.fail('Should be fulfilled');
 			});
 		});
 
@@ -276,11 +286,12 @@ describe('UHR', function () {
 			uhr.request({
 				url: 'http://localhost:8087/page',
 				method: 'GET'
-			}, function (error, status, data) {
-				assert.strictEqual(error, null);
-				assert.strictEqual(status.code, 200);
-				assert.strictEqual(data, 'test inflate');
+			}).then(function (result) {
+				assert.strictEqual(result.status.code, 200);
+				assert.strictEqual(result.content, 'test inflate');
 				done();
+			}, function () {
+				assert.fail('Should be fulfilled');
 			});
 		});
 
@@ -312,10 +323,11 @@ describe('UHR', function () {
 				url: 'http://localhost:8098/page?some=value',
 				method: 'GET',
 				data: query
-			}, function (error, status, data) {
-				assert.strictEqual(error, null);
-				assert.strictEqual(status.code, 200);
-				assert.strictEqual(data, '');
+			}).then(function (result) {
+				assert.strictEqual(result.status.code, 200);
+				assert.strictEqual(result.content, '');
+			}, function () {
+				assert.fail('Should be fulfilled');
 			});
 		});
 
@@ -347,10 +359,11 @@ describe('UHR', function () {
 				url: 'http://localhost:8088/page',
 				method: 'DELETE',
 				data: query
-			}, function (error, status, data) {
-				assert.strictEqual(error, null);
-				assert.strictEqual(status.code, 200);
-				assert.strictEqual(data, '');
+			}).then(function (result) {
+				assert.strictEqual(result.status.code, 200);
+				assert.strictEqual(result.content, '');
+			}, function () {
+				assert.fail('Should be fulfilled');
 			});
 		});
 
@@ -379,10 +392,11 @@ describe('UHR', function () {
 			uhr.request({
 				url: 'http://localhost:8089/page',
 				method: 'POST'
-			}, function (error, status, data) {
-				assert.strictEqual(error, null);
-				assert.strictEqual(status.code, 200);
-				assert.strictEqual(data, '');
+			}).then(function (result) {
+				assert.strictEqual(result.status.code, 200);
+				assert.strictEqual(result.content, '');
+			}, function () {
+				assert.fail('Should be fulfilled');
 			});
 		});
 
@@ -422,10 +436,11 @@ describe('UHR', function () {
 				url: 'http://localhost:8090/page',
 				method: 'PUT',
 				data: entity
-			}, function (error, status, data) {
-				assert.strictEqual(error, null);
-				assert.strictEqual(status.code, 200);
-				assert.strictEqual(data, '');
+			}).then(function (result) {
+				assert.strictEqual(result.status.code, 200);
+				assert.strictEqual(result.content, '');
+			}, function () {
+				assert.fail('Should be fulfilled');
 			});
 		});
 
@@ -463,10 +478,11 @@ describe('UHR', function () {
 					'Content-Type': 'application/json'
 				},
 				data: entity
-			}, function (error, status, data) {
-				assert.strictEqual(error, null);
-				assert.strictEqual(status.code, 200);
-				assert.strictEqual(data, '');
+			}).then(function (result) {
+				assert.strictEqual(result.status.code, 200);
+				assert.strictEqual(result.content, '');
+			}, function () {
+				assert.fail('Should be fulfilled');
 			});
 		});
 
@@ -496,10 +512,11 @@ describe('UHR', function () {
 				url: 'http://localhost:8092/page',
 				method: 'POST',
 				data: entity
-			}, function (error, status, data) {
-				assert.strictEqual(error, null);
-				assert.strictEqual(status.code, 200);
-				assert.strictEqual(data, '');
+			}).then(function (result) {
+				assert.strictEqual(result.status.code, 200);
+				assert.strictEqual(result.content, '');
+			}, function () {
+				assert.fail('Should be fulfilled');
 			});
 		});
 
@@ -532,10 +549,11 @@ describe('UHR', function () {
 				url: 'http://localhost:8093/page',
 				method: 'POST',
 				data: entity
-			}, function (error, status, data) {
-				assert.strictEqual(error, null);
-				assert.strictEqual(status.code, 400);
-				assert.strictEqual(data, entity);
+			}).then(function (result) {
+				assert.strictEqual(result.status.code, 400);
+				assert.strictEqual(result.content, entity);
+			}, function () {
+				assert.fail('Should be fulfilled');
 			});
 		});
 	});
