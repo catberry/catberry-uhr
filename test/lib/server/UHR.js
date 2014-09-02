@@ -40,65 +40,72 @@ global.Promise = require('promise');
 
 describe('UHR', function () {
 	describe('#request', function () {
-		it('should throw error if parameters is not an object',
+		it('should return error if parameters is not an object',
 			function (done) {
 				var uhr = new UHR();
-				try {
-					uhr.request('http://localhost:80/page');
-					assert.fail('Should be exception');
-				} catch (e) {
-					done();
-				}
+				uhr.request('http://localhost:80/page')
+					.then(function () {
+						assert.fail('Should be exception');
+						done();
+					}, function () {
+						done();
+					});
 			});
 
 		it('should throw error if method is not specified', function (done) {
 			var uhr = new UHR();
-			try {
-				uhr.request({url: 'http://localhost:80/page'});
-				assert.fail('Should be exception');
-			} catch (e) {
-				done();
-			}
+
+			uhr.request({url: 'http://localhost:80/page'})
+				.then(function () {
+					assert.fail('Should be exception');
+					done();
+				}, function () {
+					done();
+				});
 		});
 
 		it('should throw error if wrong method is specified', function (done) {
 			var uhr = new UHR();
-			try {
-				uhr.request({
-					url: 'http://localhost:80/page',
-					method: 'wrong'
+			uhr.request({
+				url: 'http://localhost:80/page',
+				method: 'wrong'
+			})
+				.then(function () {
+					assert.fail('Should be exception');
+					done();
+				}, function () {
+					done();
 				});
-				assert.fail('Should be exception');
-			} catch (e) {
-				done();
-			}
 		});
 
 		it('should throw error if URL is not specified', function (done) {
 			var uhr = new UHR();
-			try {
-				uhr.request({
-					method: 'GET'
+			uhr.request({
+				method: 'GET'
+			})
+				.then(function () {
+					assert.fail('Should be exception');
+					done();
+				}, function () {
+					done();
 				});
-				assert.fail('Should be exception');
-			} catch (e) {
-				done();
-			}
 		});
 
 		it('should throw error if wrong timeout is specified',
 			function (done) {
 				var uhr = new UHR();
-				try {
-					uhr.request({
-						url: 'http://localhost:80/page',
-						method: 'GET',
-						timeout: 'wrong'
+				uhr.request({
+					url: 'http://localhost:80/page',
+					method: 'GET',
+					timeout: 'wrong'
+				})
+					.then(function () {
+						assert.fail('Should be exception');
+						done();
+					}, function () {
+						done();
 					});
-					assert.fail('Should be exception');
-				} catch (e) {
-					done();
-				}
+
 			});
 
 		it('should end request if timeout', function (done) {
