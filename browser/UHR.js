@@ -32,7 +32,7 @@
 
 module.exports = UHR;
 
-var UHRBase = require('../UHRBase'),
+var UHRBase = require('../lib/UHRBase'),
 	url = require('url'),
 	util = require('util');
 

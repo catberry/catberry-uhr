@@ -34,7 +34,7 @@ var assert = require('assert'),
 	zlib = require('zlib'),
 	querystring = require('querystring'),
 	http = require('http'),
-	UHR = require('../../../lib/server/UHR');
+	UHR = require('../../lib/UHR');
 
 global.Promise = require('promise');
 

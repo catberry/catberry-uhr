@@ -16,6 +16,9 @@
 		"url": "git://github.com/catberry/catberry-uhr.git"
 	},
 	"main": "./index.js",
+	"browser": {
+		"./lib/UHR.js": "./browser/UHR.js"
+	},
 	"dependencies": {
 		"promise": "^5.0.0"
 	},
