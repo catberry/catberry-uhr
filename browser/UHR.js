@@ -82,9 +82,8 @@ UHR.prototype._doRequest = function (parameters) {
 			}
 		});
 
-	if (xhrParameters.data.length > 0 && (
-		xhrParameters.method === UHRBase.METHODS.GET ||
-		xhrParameters.method === UHRBase.METHODS.DELETE)) {
+	if (xhrParameters.data.length > 0 &&
+		!this._isUpstreamRequest(xhrParameters.method)) {
 		xhrParameters.url +=
 			(!urlInfo.search || urlInfo.search.length === 0 ? '?' : '&') +
 			xhrParameters.data;
@@ -97,17 +96,18 @@ UHR.prototype._doRequest = function (parameters) {
 
 		xhr.onabort = function () {
 			requestError = new Error(ERROR_ABORTED);
+			reject(requestError);
 		};
 		xhr.ontimeout = function () {
 			requestError = new Error(ERROR_TIMEOUT);
+			reject(requestError);
 		};
 		xhr.onerror = function () {
 			requestError = new Error(xhr.statusText || ERROR_CONNECTION);
+			reject(requestError);
 		};
 		xhr.onloadend = function () {
-			xhr.onloadend = null;
 			if (requestError) {
-				reject(requestError);
 				return;
 			}
 			var statusObject = getStatusObject(xhr),
@@ -132,6 +132,7 @@ UHR.prototype._doRequest = function (parameters) {
 			});
 
 		xhr.send(xhrParameters.data);
+
 	});
 };
 
