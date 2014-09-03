@@ -33,8 +33,14 @@
 module.exports = UHR;
 
 var UHRBase = require('../lib/UHRBase'),
+	Promise = require('promise'),
 	url = require('url'),
 	util = require('util');
+
+// if browser still does not have promises then add it.
+if (!('Promise' in window)) {
+	window.Promise = Promise;
+}
 
 util.inherits(UHR, UHRBase);
 
