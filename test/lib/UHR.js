@@ -36,8 +36,6 @@ var assert = require('assert'),
 	http = require('http'),
 	UHR = require('../../lib/UHR');
 
-global.Promise = require('promise');
-
 describe('UHR', function () {
 	describe('#request', function () {
 		it('should return error if parameters is not an object',
