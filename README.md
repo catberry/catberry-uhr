@@ -142,7 +142,7 @@ Module.prototype.render = function (placeholderName) {
 			timeout: 3000,
 			data: {
 				username: 'some'
-			},p
+			},
 			headers: {
 				Authorization: 'Bearer somecrazytoken'
 			}
