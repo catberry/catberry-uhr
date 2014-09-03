@@ -24,7 +24,7 @@ It supports:
  * HTTP/HTTPS
  * Any additional HTTP headers you set
 
-This Catberry service has following methods.
+UHR has following methods:
 
 ```javascript
 /**
@@ -91,14 +91,15 @@ UHRBase.prototype.request = function (parameters) { };
 }
 ```
 
-In case you do `GET`/`DELETE` request `data` will be passed as query string 
-otherwise it will be passed as JSON via request stream. Also if you put
-something to `data` field and use `application/x-www-form-urlencoded` then this
-data will be automatically [encoded](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/encodeURIComponent).
+In case you do `POST`/`PUT`/`PATCH` request `data` will be passed as 
+JSON via request stream otherwise it will be passed as query string.
+Also if you put something to `data` field and use 
+`application/x-www-form-urlencoded` then this data will be 
+automatically [encoded](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/encodeURIComponent).
 
 ##Returns promise
-Any UHR request returns promise for request result. Any error during request
-will reject promise.
+Any UHR request returns [Promise](https://www.promisejs.org) for request result.
+Any error during request will reject promise.
 
 Request result consist of following:
 
