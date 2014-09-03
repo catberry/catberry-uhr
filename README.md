@@ -122,6 +122,7 @@ For example request result can be such object:
    },
    content: 'some content from server'
 }
+```
 
 All header names are always in lower case like in node.
 
@@ -141,7 +142,7 @@ Module.prototype.render = function (placeholderName) {
 			timeout: 3000,
 			data: {
 				username: 'some'
-			},
+			},p
 			headers: {
 				Authorization: 'Bearer somecrazytoken'
 			}
