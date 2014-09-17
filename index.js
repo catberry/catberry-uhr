@@ -30,27 +30,16 @@
 
 'use strict';
 
-var /**no-client-bundle**/
-	ServerUHR = require('./lib/server/UHR'),
-	ClientUHR = require('./lib/client/UHR');
+var UHR = require('./lib/UHR');
 
 module.exports = {
 	/**
 	 * Registers UHR in server-side service locator.
 	 * @param {ServiceLocator} locator Catberry's service locator.
 	 */
-	registerOnServer: function (locator) {
+	register: function (locator) {
 		var config = locator.resolve('config');
-		locator.register('uhr', ServerUHR, config, true);
+		locator.register('uhr', UHR, config, true);
 	},
-	/**
-	 * Registers UHR in client-side service locator.
-	 * @param {ServiceLocator} locator Catberry's service locator.
-	 */
-	registerOnClient: function (locator) {
-		var config = locator.resolve('config');
-		locator.register('uhr', ClientUHR, config, true);
-	},
-	ServerUHR: ServerUHR,
-	ClientUHR: ClientUHR
+	UHR: UHR
 };

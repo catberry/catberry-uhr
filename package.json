@@ -1,6 +1,6 @@
 {
 	"name": "catberry-uhr",
-	"version": "1.1.0",
+	"version": "2.0.0",
 	"author": "Denis Rechkunov <denis.rechkunov@gmail.com>",
 	"description": "Universal HTTP(S) Request module for catberry framework",
 	"homepage": "https://github.com/catberry/catberry-uhr",
@@ -16,7 +16,15 @@
 		"url": "git://github.com/catberry/catberry-uhr.git"
 	},
 	"main": "./index.js",
+	"browser": {
+		"./lib/UHR.js": "./browser/UHR.js"
+	},
+	"dependencies": {
+		"promise": "^5.0.0"
+	},
 	"devDependencies": {
+		"istanbul-harmony": "~0.3.0",
+		"coveralls": "^2.11.1",
 		"catberry-locator": "^1.0.0",
 		"mocha": "^1.20.0",
 		"jscs": "~1.4.0",
@@ -28,7 +36,7 @@
 	},
 
 	"scripts": {
-		"test": "jshint ./ && jscs ./ && mocha --recursive"
+		"test": "make"
 	},
 
 	"licenses": [

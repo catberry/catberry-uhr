@@ -34,32 +34,30 @@ var assert = require('assert'),
 	zlib = require('zlib'),
 	querystring = require('querystring'),
 	http = require('http'),
-	UHR = require('../../../lib/server/UHR');
+	UHR = require('../../lib/UHR');
 
 describe('UHR', function () {
 	describe('#request', function () {
 		it('should return error if parameters is not an object',
 			function (done) {
 				var uhr = new UHR();
-				uhr.request('http://localhost:80/page',
-					function (error, status, data) {
-						assert.strictEqual(error instanceof Error, true);
-						assert.strictEqual(status, undefined);
-						assert.strictEqual(data, undefined);
+				uhr.request('http://localhost:80/page')
+					.then(function () {
+						done(new Error('Should be exception'));
+					}, function () {
 						done();
 					});
 			});
 
 		it('should return error if method is not specified', function (done) {
 			var uhr = new UHR();
-			uhr.request({
-				url: 'http://localhost:80/page'
-			}, function (error, status, data) {
-				assert.strictEqual(error instanceof Error, true);
-				assert.strictEqual(status, undefined);
-				assert.strictEqual(data, undefined);
-				done();
-			});
+
+			uhr.request({url: 'http://localhost:80/page'})
+				.then(function () {
+					done(new Error('Should be exception'));
+				}, function () {
+					done();
+				});
 		});
 
 		it('should return error if wrong method is specified', function (done) {
@@ -67,24 +65,24 @@ describe('UHR', function () {
 			uhr.request({
 				url: 'http://localhost:80/page',
 				method: 'wrong'
-			}, function (error, status, data) {
-				assert.strictEqual(error instanceof Error, true);
-				assert.strictEqual(status, undefined);
-				assert.strictEqual(data, undefined);
-				done();
-			});
+			})
+				.then(function () {
+					done(new Error('Should be exception'));
+				}, function () {
+					done();
+				});
 		});
 
 		it('should return error if URL is not specified', function (done) {
 			var uhr = new UHR();
 			uhr.request({
 				method: 'GET'
-			}, function (error, status, data) {
-				assert.strictEqual(error instanceof Error, true);
-				assert.strictEqual(status, undefined);
-				assert.strictEqual(data, undefined);
-				done();
-			});
+			})
+				.then(function () {
+					done(new Error('Should be exception'));
+				}, function () {
+					done();
+				});
 		});
 
 		it('should return error if wrong timeout is specified',
@@ -94,12 +92,81 @@ describe('UHR', function () {
 					url: 'http://localhost:80/page',
 					method: 'GET',
 					timeout: 'wrong'
-				}, function (error, status, data) {
-					assert.strictEqual(error instanceof Error, true);
-					assert.strictEqual(status, undefined);
-					assert.strictEqual(data, undefined);
-					done();
+				})
+					.then(function () {
+						done(new Error('Should be exception'));
+					}, function () {
+						done();
+					});
+
+			});
+
+		it('should return error if request.socket destroyed by server',
+			function (done) {
+				var server = createServer(8191, function (request, response) {
+					request.socket.destroy(new Error());
+					server.close();
 				});
+
+				var uhr = new UHR();
+				uhr.request({
+					url: 'http://localhost:8191/page',
+					method: 'GET'
+				})
+					.then(function () {
+						done(new Error('Should be exception'));
+					}, function (reason) {
+						assert.strictEqual(reason.code, 'ECONNRESET');
+						done();
+					})
+					.then(null, function (reason) {
+						done(reason);
+					});
+			});
+
+		it('should return error if response.socket destroyed by server',
+			function (done) {
+				var server = createServer(8192, function (request, response) {
+					response.socket.destroy(new Error());
+					server.close();
+				});
+
+				var uhr = new UHR();
+				uhr.request({
+					url: 'http://localhost:8192/page',
+					method: 'GET'
+				})
+					.then(function () {
+						done(new Error('Should be exception'));
+					}, function (reason) {
+						assert.strictEqual(reason.code, 'ECONNRESET');
+						done();
+					})
+					.then(null, function (reason) {
+						done(reason);
+					});
+			});
+
+		it('should return error if unsupported protocol',
+			function (done) {
+				var server = createServer(8193, function (request, response) {
+					response.socket.destroy();
+					server.close();
+				});
+
+				var uhr = new UHR();
+				uhr.get('ftp://localhost:8193/page')
+					.then(function () {
+						done(new Error('Should be exception'));
+					}, function (reason) {
+						assert.strictEqual(
+							reason.message, 'Protocol is unsupported'
+						);
+						done();
+					})
+					.then(null, function (reason) {
+						done(reason);
+					});
 			});
 
 		it('should end request if timeout', function (done) {
@@ -115,12 +182,16 @@ describe('UHR', function () {
 				url: 'http://localhost:8081/page',
 				method: 'GET',
 				timeout: 1000
-			}, function (error, status, data) {
-				assert.strictEqual(error instanceof Error, true);
-				assert.strictEqual(status, undefined);
-				assert.strictEqual(data, undefined);
-				done();
-			});
+			})
+				.then(function () {
+					done(new Error('Should be exception'));
+				}, function (reason) {
+					assert.strictEqual(reason instanceof Error, true);
+					done();
+				})
+				.then(null, function (reason) {
+					done(reason);
+				});
 		});
 
 		it('should send HTTP request with specified URL', function (done) {
@@ -134,10 +205,11 @@ describe('UHR', function () {
 			uhr.request({
 				url: 'http://localhost:8082/page',
 				method: 'GET'
-			}, function (error, status) {
-				assert.strictEqual(error, null);
-				assert.strictEqual(status.code, 200);
+			}).then(function (result) {
+				assert.strictEqual(result.status.code, 200);
 				done();
+			}, function () {
+				assert.fail('Should be fulfilled');
 			});
 		});
 
@@ -145,10 +217,14 @@ describe('UHR', function () {
 			var server = createServer(8093, function (request, response) {
 				assert.strictEqual(request.headers.host, 'localhost:8093');
 				assert.strictEqual(typeof(request.headers.accept), 'string');
-				assert.strictEqual(typeof(request.headers['accept-charset']),
-					'string');
-				assert.strictEqual(typeof(request.headers['user-agent']),
-					'string');
+				assert.strictEqual(
+					typeof(request.headers['accept-charset']),
+					'string'
+				);
+				assert.strictEqual(
+					typeof(request.headers['user-agent']),
+					'string'
+				);
 				response.end();
 				server.close(function () {
 					done();
@@ -159,9 +235,10 @@ describe('UHR', function () {
 			uhr.request({
 				url: 'http://localhost:8093/page',
 				method: 'GET'
-			}, function (error, status) {
-				assert.strictEqual(error, null);
-				assert.strictEqual(status.code, 200);
+			}).then(function (result) {
+				assert.strictEqual(result.status.code, 200);
+			}, function () {
+				assert.fail('Should be fulfilled');
 			});
 		});
 
@@ -182,13 +259,16 @@ describe('UHR', function () {
 			uhr.request({
 				url: 'http://localhost:8083/page',
 				method: 'GET'
-			}, function (error, status, data) {
-				assert.strictEqual(error, null);
-				assert.strictEqual(status.code, 200);
-				assert.strictEqual(data.test, obj.test);
-				assert.strictEqual(Number(data.test2), obj.test2);
-				assert.strictEqual(Boolean(data.boolean), obj.boolean);
+			}).then(function (result) {
+				assert.strictEqual(result.status.code, 200);
+				assert.strictEqual(result.content.test, obj.test);
+				assert.strictEqual(Number(result.content.test2), obj.test2);
+				assert.strictEqual(
+					Boolean(result.content.boolean), obj.boolean
+				);
 				done();
+			}, function () {
+				assert.fail('Should be fulfilled');
 			});
 		});
 
@@ -199,8 +279,7 @@ describe('UHR', function () {
 				boolean: true
 			};
 			var server = createServer(8084, function (request, response) {
-				response.setHeader('Content-Type',
-					'application/json');
+				response.setHeader('Content-Type', 'application/json');
 				response.end(JSON.stringify(obj));
 				server.close();
 			});
@@ -209,11 +288,12 @@ describe('UHR', function () {
 			uhr.request({
 				url: 'http://localhost:8084/page',
 				method: 'GET'
-			}, function (error, status, data) {
-				assert.strictEqual(error, null);
-				assert.strictEqual(status.code, 200);
-				assert.deepEqual(data, obj);
+			}).then(function (result) {
+				assert.strictEqual(result.status.code, 200);
+				assert.deepEqual(result.content, obj);
 				done();
+			}, function () {
+				assert.fail('Should be fulfilled');
 			});
 		});
 
@@ -228,11 +308,12 @@ describe('UHR', function () {
 			uhr.request({
 				url: 'http://localhost:8085/page',
 				method: 'GET'
-			}, function (error, status, data) {
-				assert.strictEqual(error, null);
-				assert.strictEqual(status.code, 200);
-				assert.strictEqual(data, 'test');
+			}).then(function (result) {
+				assert.strictEqual(result.status.code, 200);
+				assert.strictEqual(result.content, 'test');
 				done();
+			}, function () {
+				assert.fail('Should be fulfilled');
 			});
 		});
 
@@ -252,11 +333,12 @@ describe('UHR', function () {
 			uhr.request({
 				url: 'http://localhost:8086/page',
 				method: 'GET'
-			}, function (error, status, data) {
-				assert.strictEqual(error, null);
-				assert.strictEqual(status.code, 200);
-				assert.strictEqual(data, 'test gzip');
+			}).then(function (result) {
+				assert.strictEqual(result.status.code, 200);
+				assert.strictEqual(result.content, 'test gzip');
 				done();
+			}, function () {
+				assert.fail('Should be fulfilled');
 			});
 		});
 
@@ -276,11 +358,12 @@ describe('UHR', function () {
 			uhr.request({
 				url: 'http://localhost:8087/page',
 				method: 'GET'
-			}, function (error, status, data) {
-				assert.strictEqual(error, null);
-				assert.strictEqual(status.code, 200);
-				assert.strictEqual(data, 'test inflate');
+			}).then(function (result) {
+				assert.strictEqual(result.status.code, 200);
+				assert.strictEqual(result.content, 'test inflate');
 				done();
+			}, function () {
+				assert.fail('Should be fulfilled');
 			});
 		});
 
@@ -312,10 +395,11 @@ describe('UHR', function () {
 				url: 'http://localhost:8098/page?some=value',
 				method: 'GET',
 				data: query
-			}, function (error, status, data) {
-				assert.strictEqual(error, null);
-				assert.strictEqual(status.code, 200);
-				assert.strictEqual(data, '');
+			}).then(function (result) {
+				assert.strictEqual(result.status.code, 200);
+				assert.strictEqual(result.content, '');
+			}, function () {
+				assert.fail('Should be fulfilled');
 			});
 		});
 
@@ -343,14 +427,13 @@ describe('UHR', function () {
 			});
 
 			var uhr = new UHR();
-			uhr.request({
-				url: 'http://localhost:8088/page',
-				method: 'DELETE',
+			uhr.delete('http://localhost:8088/page', {
 				data: query
-			}, function (error, status, data) {
-				assert.strictEqual(error, null);
-				assert.strictEqual(status.code, 200);
-				assert.strictEqual(data, '');
+			}).then(function (result) {
+				assert.strictEqual(result.status.code, 200);
+				assert.strictEqual(result.content, '');
+			}, function () {
+				assert.fail('Should be fulfilled');
 			});
 		});
 
@@ -376,14 +459,52 @@ describe('UHR', function () {
 			});
 
 			var uhr = new UHR();
-			uhr.request({
-				url: 'http://localhost:8089/page',
-				method: 'POST'
-			}, function (error, status, data) {
-				assert.strictEqual(error, null);
-				assert.strictEqual(status.code, 200);
-				assert.strictEqual(data, '');
+			uhr.post('http://localhost:8089/page')
+				.then(function (result) {
+					assert.strictEqual(result.status.code, 200);
+					assert.strictEqual(result.content, '');
+				}, function () {
+					assert.fail('Should be fulfilled');
+				});
+		});
+
+		it('should patch entity', function (done) {
+			var server = createServer(8095, function (request, response) {
+				assert.strictEqual(request.url, '/page');
+				assert.strictEqual(request.headers['content-type'],
+					'application/json; charset=UTF-8');
+
+				var data = '';
+				request.setEncoding('utf8');
+				request.on('data', function (chunk) {
+					data += chunk;
+				});
+				request.on('end', function () {
+					var entity = JSON.parse(data);
+					assert.strictEqual(entity.field, 'value');
+					response.end();
+					server.close(function () {
+						done();
+					});
+				});
+
 			});
+
+			var uhr = new UHR();
+			uhr.patch('http://localhost:8095/page', {
+				headers: {
+					'Content-Type': 'application/json; charset=UTF-8'
+				},
+				data: {
+					field: 'value'
+				}
+			})
+				.then(function (result) {
+					assert.strictEqual(result.status.code, 200);
+					assert.strictEqual(result.content, '');
+				}, function () {
+					assert.fail('Should be fulfilled');
+				});
 		});
 
 		it('should send entity as URL encoded', function (done) {
@@ -418,14 +539,13 @@ describe('UHR', function () {
 			});
 
 			var uhr = new UHR();
-			uhr.request({
-				url: 'http://localhost:8090/page',
-				method: 'PUT',
+			uhr.put('http://localhost:8090/page', {
 				data: entity
-			}, function (error, status, data) {
-				assert.strictEqual(error, null);
-				assert.strictEqual(status.code, 200);
-				assert.strictEqual(data, '');
+			}).then(function (result) {
+				assert.strictEqual(result.status.code, 200);
+				assert.strictEqual(result.content, '');
+			}, function () {
+				assert.fail('Should be fulfilled');
 			});
 		});
 
@@ -463,10 +583,11 @@ describe('UHR', function () {
 					'Content-Type': 'application/json'
 				},
 				data: entity
-			}, function (error, status, data) {
-				assert.strictEqual(error, null);
-				assert.strictEqual(status.code, 200);
-				assert.strictEqual(data, '');
+			}).then(function (result) {
+				assert.strictEqual(result.status.code, 200);
+				assert.strictEqual(result.content, '');
+			}, function () {
+				assert.fail('Should be fulfilled');
 			});
 		});
 
@@ -496,10 +617,11 @@ describe('UHR', function () {
 				url: 'http://localhost:8092/page',
 				method: 'POST',
 				data: entity
-			}, function (error, status, data) {
-				assert.strictEqual(error, null);
-				assert.strictEqual(status.code, 200);
-				assert.strictEqual(data, '');
+			}).then(function (result) {
+				assert.strictEqual(result.status.code, 200);
+				assert.strictEqual(result.content, '');
+			}, function () {
+				assert.fail('Should be fulfilled');
 			});
 		});
 
@@ -532,10 +654,11 @@ describe('UHR', function () {
 				url: 'http://localhost:8093/page',
 				method: 'POST',
 				data: entity
-			}, function (error, status, data) {
-				assert.strictEqual(error, null);
-				assert.strictEqual(status.code, 400);
-				assert.strictEqual(data, entity);
+			}).then(function (result) {
+				assert.strictEqual(result.status.code, 400);
+				assert.strictEqual(result.content, entity);
+			}, function () {
+				assert.fail('Should be fulfilled');
 			});
 		});
 	});
