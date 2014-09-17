@@ -43,53 +43,49 @@ describe('UHR', function () {
 				var uhr = new UHR();
 				uhr.request('http://localhost:80/page')
 					.then(function () {
-						assert.fail('Should be exception');
-						done();
+						done(new Error('Should be exception'));
 					}, function () {
 						done();
 					});
 			});
 
-		it('should throw error if method is not specified', function (done) {
+		it('should return error if method is not specified', function (done) {
 			var uhr = new UHR();
 
 			uhr.request({url: 'http://localhost:80/page'})
 				.then(function () {
-					assert.fail('Should be exception');
-					done();
+					done(new Error('Should be exception'));
 				}, function () {
 					done();
 				});
 		});
 
-		it('should throw error if wrong method is specified', function (done) {
+		it('should return error if wrong method is specified', function (done) {
 			var uhr = new UHR();
 			uhr.request({
 				url: 'http://localhost:80/page',
 				method: 'wrong'
 			})
 				.then(function () {
-					assert.fail('Should be exception');
-					done();
+					done(new Error('Should be exception'));
 				}, function () {
 					done();
 				});
 		});
 
-		it('should throw error if URL is not specified', function (done) {
+		it('should return error if URL is not specified', function (done) {
 			var uhr = new UHR();
 			uhr.request({
 				method: 'GET'
 			})
 				.then(function () {
-					assert.fail('Should be exception');
-					done();
+					done(new Error('Should be exception'));
 				}, function () {
 					done();
 				});
 		});
 
-		it('should throw error if wrong timeout is specified',
+		it('should return error if wrong timeout is specified',
 			function (done) {
 				var uhr = new UHR();
 				uhr.request({
@@ -98,12 +94,79 @@ describe('UHR', function () {
 					timeout: 'wrong'
 				})
 					.then(function () {
-						assert.fail('Should be exception');
-						done();
+						done(new Error('Should be exception'));
 					}, function () {
 						done();
 					});
 
+			});
+
+		it('should return error if request.socket destroyed by server',
+			function (done) {
+				var server = createServer(8191, function (request, response) {
+					request.socket.destroy(new Error());
+					server.close();
+				});
+
+				var uhr = new UHR();
+				uhr.request({
+					url: 'http://localhost:8191/page',
+					method: 'GET'
+				})
+					.then(function () {
+						done(new Error('Should be exception'));
+					}, function (reason) {
+						assert.strictEqual(reason.code, 'ECONNRESET');
+						done();
+					})
+					.then(null, function (reason) {
+						done(reason);
+					});
+			});
+
+		it('should return error if response.socket destroyed by server',
+			function (done) {
+				var server = createServer(8192, function (request, response) {
+					response.socket.destroy(new Error());
+					server.close();
+				});
+
+				var uhr = new UHR();
+				uhr.request({
+					url: 'http://localhost:8192/page',
+					method: 'GET'
+				})
+					.then(function () {
+						done(new Error('Should be exception'));
+					}, function (reason) {
+						assert.strictEqual(reason.code, 'ECONNRESET');
+						done();
+					})
+					.then(null, function (reason) {
+						done(reason);
+					});
+			});
+
+		it('should return error if unsupported protocol',
+			function (done) {
+				var server = createServer(8193, function (request, response) {
+					response.socket.destroy();
+					server.close();
+				});
+
+				var uhr = new UHR();
+				uhr.get('ftp://localhost:8193/page')
+					.then(function () {
+						done(new Error('Should be exception'));
+					}, function (reason) {
+						assert.strictEqual(
+							reason.message, 'Protocol is unsupported'
+						);
+						done();
+					})
+					.then(null, function (reason) {
+						done(reason);
+					});
 			});
 
 		it('should end request if timeout', function (done) {
@@ -119,12 +182,16 @@ describe('UHR', function () {
 				url: 'http://localhost:8081/page',
 				method: 'GET',
 				timeout: 1000
-			}).then(function () {
-				assert.fail('Should not be fulfilled');
-			}, function (reason) {
-				assert.strictEqual(reason instanceof Error, true);
-				done();
-			});
+			})
+				.then(function () {
+					done(new Error('Should be exception'));
+				}, function (reason) {
+					assert.strictEqual(reason instanceof Error, true);
+					done();
+				})
+				.then(null, function (reason) {
+					done(reason);
+				});
 		});
 
 		it('should send HTTP request with specified URL', function (done) {
@@ -360,9 +427,7 @@ describe('UHR', function () {
 			});
 
 			var uhr = new UHR();
-			uhr.request({
-				url: 'http://localhost:8088/page',
-				method: 'DELETE',
+			uhr.delete('http://localhost:8088/page', {
 				data: query
 			}).then(function (result) {
 				assert.strictEqual(result.status.code, 200);
@@ -394,15 +459,52 @@ describe('UHR', function () {
 			});
 
 			var uhr = new UHR();
-			uhr.request({
-				url: 'http://localhost:8089/page',
-				method: 'POST'
-			}).then(function (result) {
-				assert.strictEqual(result.status.code, 200);
-				assert.strictEqual(result.content, '');
-			}, function () {
-				assert.fail('Should be fulfilled');
+			uhr.post('http://localhost:8089/page')
+				.then(function (result) {
+					assert.strictEqual(result.status.code, 200);
+					assert.strictEqual(result.content, '');
+				}, function () {
+					assert.fail('Should be fulfilled');
+				});
+		});
+
+		it('should patch entity', function (done) {
+			var server = createServer(8095, function (request, response) {
+				assert.strictEqual(request.url, '/page');
+				assert.strictEqual(request.headers['content-type'],
+					'application/json; charset=UTF-8');
+
+				var data = '';
+				request.setEncoding('utf8');
+				request.on('data', function (chunk) {
+					data += chunk;
+				});
+				request.on('end', function () {
+					var entity = JSON.parse(data);
+					assert.strictEqual(entity.field, 'value');
+					response.end();
+					server.close(function () {
+						done();
+					});
+				});
+
 			});
+
+			var uhr = new UHR();
+			uhr.patch('http://localhost:8095/page', {
+				headers: {
+					'Content-Type': 'application/json; charset=UTF-8'
+				},
+				data: {
+					field: 'value'
+				}
+			})
+				.then(function (result) {
+					assert.strictEqual(result.status.code, 200);
+					assert.strictEqual(result.content, '');
+				}, function () {
+					assert.fail('Should be fulfilled');
+				});
 		});
 
 		it('should send entity as URL encoded', function (done) {
@@ -437,9 +539,7 @@ describe('UHR', function () {
 			});
 
 			var uhr = new UHR();
-			uhr.request({
-				url: 'http://localhost:8090/page',
-				method: 'PUT',
+			uhr.put('http://localhost:8090/page', {
 				data: entity
 			}).then(function (result) {
 				assert.strictEqual(result.status.code, 200);
