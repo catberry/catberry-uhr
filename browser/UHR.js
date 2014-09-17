@@ -32,9 +32,15 @@
 
 module.exports = UHR;
 
-var UHRBase = require('../UHRBase'),
+var UHRBase = require('../lib/UHRBase'),
+	Promise = require('promise'),
 	url = require('url'),
 	util = require('util');
+
+// if browser still does not have promises then add it.
+if (!('Promise' in window)) {
+	window.Promise = Promise;
+}
 
 util.inherits(UHR, UHRBase);
 
@@ -66,74 +72,74 @@ UHR.prototype.window = null;
 /**
  * Does request with specified parameters using protocol implementation.
  * @param {Object} parameters Request parameters.
- * @param {Function} callback Callback on finish.
- * @return {Object} Request object with abort method.
+ * @returns {Promise<Object>} Promise for result with status object and content.
  * @protected
  */
-UHR.prototype._doRequest = function (parameters, callback) {
-	try {
-		var self = this,
-			xhrParameters = Object.create(parameters),
-			urlInfo = url.parse(parameters.url);
-		xhrParameters.headers = this._createHeaders(parameters.headers);
+UHR.prototype._doRequest = function (parameters) {
+	var self = this,
+		xhrParameters = Object.create(parameters),
+		urlInfo = url.parse(parameters.url);
+	xhrParameters.headers = this._createHeaders(parameters.headers);
 
-		Object.keys(xhrParameters.headers)
-			.forEach(function (name) {
-				if (NON_SAFE_HEADERS.hasOwnProperty(name.toLowerCase())) {
-					delete xhrParameters.headers[name];
-				}
-			});
+	Object.keys(xhrParameters.headers)
+		.forEach(function (name) {
+			if (NON_SAFE_HEADERS.hasOwnProperty(name.toLowerCase())) {
+				delete xhrParameters.headers[name];
+			}
+		});
 
-		if (xhrParameters.data.length > 0 && (
-			xhrParameters.method === UHRBase.METHODS.GET ||
-			xhrParameters.method === UHRBase.METHODS.DELETE)) {
-			xhrParameters.url +=
-				(!urlInfo.search || urlInfo.search.length === 0 ? '?' : '&') +
-				xhrParameters.data;
-		}
+	if (xhrParameters.data.length > 0 &&
+		!this._isUpstreamRequest(xhrParameters.method)) {
+		xhrParameters.url +=
+			(!urlInfo.search || urlInfo.search.length === 0 ? '?' : '&') +
+			xhrParameters.data;
+	}
 
+	return new Promise(function (fulfill, reject) {
 		var requestError = null,
 			loginAndPass = String(urlInfo.auth || '').split(':'),
-			xhr = new this.window.XMLHttpRequest();
+			xhr = new self.window.XMLHttpRequest();
 
 		xhr.onabort = function () {
 			requestError = new Error(ERROR_ABORTED);
+			reject(requestError);
 		};
 		xhr.ontimeout = function () {
 			requestError = new Error(ERROR_TIMEOUT);
+			reject(requestError);
 		};
 		xhr.onerror = function () {
 			requestError = new Error(xhr.statusText || ERROR_CONNECTION);
+			reject(requestError);
 		};
 		xhr.onloadend = function () {
-			xhr.onloadend = null;
-
+			if (requestError) {
+				return;
+			}
 			var statusObject = getStatusObject(xhr),
 				content = self.convertResponse(
 					statusObject.headers['content-type'],
-					xhr.responseText);
-			callback(requestError, statusObject, content);
+					xhr.responseText
+				);
+			fulfill({status: statusObject, content: content});
 		};
 
-		xhr.open(xhrParameters.method, xhrParameters.url, true,
-			loginAndPass[0],
-			loginAndPass[1]);
+		xhr.open(
+			xhrParameters.method, xhrParameters.url, true,
+			loginAndPass[0], loginAndPass[1]
+		);
 		xhr.timeout = xhrParameters.timeout;
 
 		Object.keys(xhrParameters.headers)
 			.forEach(function (headerName) {
-				xhr.setRequestHeader(headerName,
-					xhrParameters.headers[headerName]);
+				xhr.setRequestHeader(
+					headerName, xhrParameters.headers[headerName]
+				);
 			});
 
 		xhr.send(xhrParameters.data);
 
-		return {
-			abort: xhr.abort
-		};
-	} catch (e) {
-		callback(e, getStatusObject(), '');
-	}
+	});
 };
 
 /**

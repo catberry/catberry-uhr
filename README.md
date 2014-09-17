@@ -1,4 +1,4 @@
-#Universal HTTP(S) Request for Catberry[![Build Status](https://travis-ci.org/catberry/catberry-uhr.png?branch=master)](https://travis-ci.org/catberry/catberry-uhr)
+#Universal HTTP(S) Request for Catberry 2 [![Build Status](https://travis-ci.org/catberry/catberry-uhr.png?branch=master)](https://travis-ci.org/catberry/catberry-uhr) [![Coverage Status](https://coveralls.io/repos/catberry/catberry-uhr/badge.png?branch=master)](https://coveralls.io/r/catberry/catberry-uhr?branch=master)
 [![NPM](https://nodei.co/npm/catberry-uhr.png)](https://nodei.co/npm/catberry-uhr/)
 
 ##Description
@@ -24,52 +24,55 @@ It supports:
  * HTTP/HTTPS
  * Any additional HTTP headers you set
 
-This Catberry service has following methods.
+UHR has following methods:
 
 ```javascript
 /**
  * Does GET request to HTTP server.
  * @param {string} url URL to request.
  * @param {Object} options Object with options.
- * @param {Function<Error, Object, string>?} callback Callback on finish
- * with error, status object and data.
+ * @returns {Promise<Object>} Promise for result with status object and content.
  */
-UHRBase.prototype.get = function (url, options, callback) { }
+UHRBase.prototype.get = function (url, options) { };
 
 /**
  * Does POST request to HTTP server.
  * @param {string} url URL to request.
- * @param {Object} options Request options.
- * @param {Function<Error, Object, string>?} callback Callback on finish
- * with error, status object and data.
+ * @param {Object} options Object with options.
+ * @returns {Promise<Object>} Promise for result with status object and content.
  */
-UHRBase.prototype.post = function (url, options, callback) { }
+UHRBase.prototype.post = function (url, options) { };
 
 /**
  * Does PUT request to HTTP server.
  * @param {string} url URL to request.
  * @param {Object} options Object with options.
- * @param {Function<Error, Object, string>?} callback Callback on finish
- * with error, status object and data.
+ * @returns {Promise<Object>} Promise for result with status object and content.
  */
-UHRBase.prototype.put = function (url, options, callback) { }
+UHRBase.prototype.put = function (url, options) { };
+
+/**
+ * Does PATCH request to HTTP server.
+ * @param {string} url URL to request.
+ * @param {Object} options Object with options.
+ * @returns {Promise<Object>} Promise for result with status object and content.
+ */
+UHRBase.prototype.patch = function (url, options) { };
 
 /**
  * Does DELETE request to HTTP server.
  * @param {string} url URL to request.
  * @param {Object} options Object with options.
- * @param {Function<Error, Object, string>?} callback Callback on finish
- * with error, status object and data.
+ * @returns {Promise<Object>} Promise for result with status object and content.
  */
-UHRBase.prototype.delete = function (url, options, callback) { }
+UHRBase.prototype.delete = function (url, options) { };
 
 /**
  * Does request with specified parameters.
  * @param {Object} parameters Request parameters.
- * @param {Function<Error, Object, string>?} callback Callback on finish
- * with error, status object and data.
+ * @returns {Promise<Object>} Promise for result with status object and content.
  */
-UHRBase.prototype.request = function (parameters, callback) { }
+UHRBase.prototype.request = function (parameters) { };
 ```
 
 ##Request options example
@@ -78,42 +81,51 @@ UHRBase.prototype.request = function (parameters, callback) { }
 {
 	method: 'GET',
 	timeout: 30000,
+	unsafeHTTPS: false, // require valid certificate by default
 	headers: {
 		Cookie: 'name=value'
 	},
 	data: {
-		parameter: 'value'
+		parameter: 'value' // all parameters will be URL encoded
 	}
 }
 ```
 
-In case you do `GET`/`DELETE` request `data` will be passed as query string 
-otherwise it will be passed as JSON via request stream. Also if you put
-something to `data` field and use `application/x-www-form-urlencoded` then this
-data will be automatically [encoded](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/encodeURIComponent).
+In case you do `POST`/`PUT`/`PATCH` request `data` will be passed as 
+JSON via request stream otherwise it will be passed as query string.
+Also if you put something to `data` field and use 
+`application/x-www-form-urlencoded` then this data will be 
+automatically [encoded](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/encodeURIComponent).
 
-##Callback
-In callback you will receive:
+##Returns promise
+Any UHR request returns [Promise](https://www.promisejs.org) for request result.
+Any error during request will reject promise.
 
-* `Error` (if transport level error was happened)
-* Status object with HTTP status code, status text and response headers
-* Response body as plain text or object 
+Request result consist of following:
+
+* Status object with HTTP status `code`, status `text` and response `headers`
+* Response `content` as plain text or object 
 (depends on `Content-Type` in response headers)
 
-Status object looks like this:
+For example request result can be such object:
 
 ```javascript
 {
-	code: 200,
-	text: 'OK',
-	headers: {
-		'Cache-Control': 'no-cache',
-        'Content-Length': '1',
-        'Content-Type': 'text/html; charset=utf-8',
-        'Date': 'Tue, 08 Apr 2014 05:16:19 GMT'
-	}
+	status: {
+		code: 200,
+		text: 'OK',
+		headers: {
+			'cache-control': 'no-cache',
+			'content-length': '1',
+			'content-type': 'text/html; charset=utf-8',
+			'date': 'Tue, 08 Apr 2014 05:16:19 GMT'
+		}
+   },
+   content: 'some content from server'
 }
 ```
+
+All header names are always in lower case like in node.
 
 ##Usage
 If you are using [Catberry Framework](https://github.com/catberry/catberry)
@@ -126,26 +138,21 @@ function Module($uhr) {
 	this._uhr = $uhr;
 }
 
-Module.prototype.render(placeholderName, callback) {
+Module.prototype.render = function (placeholderName) {
 	var options = {
-		timeout: 3000,
-		data: {
-			username: 'some'
-		},
-		headers: {
-			Authorization: 'Bearer somecrazytoken'
-		}
-	};
-	this._uhr.get('http://localhost/api/user', options,
-    		function (error, status, data) {
-    			if (error) {
-    				callback(error);
-    				return;
-    			}
-    			callback(null, data);
-    		});
-	...
-}
+			timeout: 3000,
+			data: {
+				username: 'some'
+			},
+			headers: {
+				Authorization: 'Bearer somecrazytoken'
+			}
+		};
+	return this._uhr.get('http://localhost/api/user', options)
+		.then(function(result) {
+			return result.content;
+		});
+};
 ```
 
 ##Contribution
