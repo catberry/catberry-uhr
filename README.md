@@ -1,4 +1,4 @@
-#Universal HTTP(S) Request for Catberry 2 [![Build Status](https://travis-ci.org/catberry/catberry-uhr.png?branch=master)](https://travis-ci.org/catberry/catberry-uhr) [![Coverage Status](https://coveralls.io/repos/catberry/catberry-uhr/badge.png?branch=master)](https://coveralls.io/r/catberry/catberry-uhr?branch=master)
+#Universal HTTP(S) Request for Catberry [![Build Status](https://travis-ci.org/catberry/catberry-uhr.png?branch=master)](https://travis-ci.org/catberry/catberry-uhr) [![Coverage Status](https://coveralls.io/repos/catberry/catberry-uhr/badge.png?branch=master)](https://coveralls.io/r/catberry/catberry-uhr?branch=master)
 [![NPM](https://nodei.co/npm/catberry-uhr.png)](https://nodei.co/npm/catberry-uhr/)
 
 ##Description
@@ -30,49 +30,81 @@ UHR has following methods:
 /**
  * Does GET request to HTTP server.
  * @param {string} url URL to request.
- * @param {Object} options Object with options.
+ * @param {Object?} options Request parameters.
+ * @param {Object?} options.headers HTTP headers to send.
+ * @param {String|Object?} options.data Data to send.
+ * @param {Number?} options.timeout Request timeout.
+ * @param {Boolean?} options.unsafeHTTPS If true then requests to servers with
+ * invalid HTTPS certificates are allowed.
  * @returns {Promise<Object>} Promise for result with status object and content.
  */
-UHRBase.prototype.get = function (url, options) { };
+UHRBase.prototype.get = function (url, options) { }
 
 /**
  * Does POST request to HTTP server.
  * @param {string} url URL to request.
- * @param {Object} options Object with options.
+ * @param {Object?} options Request parameters.
+ * @param {Object?} options.headers HTTP headers to send.
+ * @param {String|Object?} options.data Data to send.
+ * @param {Number?} options.timeout Request timeout.
+ * @param {Boolean?} options.unsafeHTTPS If true then requests to servers with
+ * invalid HTTPS certificates are allowed.
  * @returns {Promise<Object>} Promise for result with status object and content.
  */
-UHRBase.prototype.post = function (url, options) { };
+UHRBase.prototype.post = function (url, options) { }
 
 /**
  * Does PUT request to HTTP server.
  * @param {string} url URL to request.
- * @param {Object} options Object with options.
+ * @param {Object?} options Request parameters.
+ * @param {Object?} options.headers HTTP headers to send.
+ * @param {String|Object?} options.data Data to send.
+ * @param {Number?} options.timeout Request timeout.
+ * @param {Boolean?} options.unsafeHTTPS If true then requests to servers with
+ * invalid HTTPS certificates are allowed.
  * @returns {Promise<Object>} Promise for result with status object and content.
  */
-UHRBase.prototype.put = function (url, options) { };
+UHRBase.prototype.put = function (url, options) { }
 
 /**
  * Does PATCH request to HTTP server.
  * @param {string} url URL to request.
- * @param {Object} options Object with options.
+ * @param {Object?} options Request parameters.
+ * @param {Object?} options.headers HTTP headers to send.
+ * @param {String|Object?} options.data Data to send.
+ * @param {Number?} options.timeout Request timeout.
+ * @param {Boolean?} options.unsafeHTTPS If true then requests to servers with
+ * invalid HTTPS certificates are allowed.
  * @returns {Promise<Object>} Promise for result with status object and content.
  */
-UHRBase.prototype.patch = function (url, options) { };
+UHRBase.prototype.patch = function (url, options) { }
 
 /**
  * Does DELETE request to HTTP server.
  * @param {string} url URL to request.
- * @param {Object} options Object with options.
+ * @param {Object?} options Request parameters.
+ * @param {Object?} options.headers HTTP headers to send.
+ * @param {String|Object?} options.data Data to send.
+ * @param {Number?} options.timeout Request timeout.
+ * @param {Boolean?} options.unsafeHTTPS If true then requests to servers with
+ * invalid HTTPS certificates are allowed.
  * @returns {Promise<Object>} Promise for result with status object and content.
  */
-UHRBase.prototype.delete = function (url, options) { };
+UHRBase.prototype.delete = function (url, options) { }
 
 /**
  * Does request with specified parameters.
  * @param {Object} parameters Request parameters.
+ * @param {String} parameters.method HTTP method.
+ * @param {String} parameters.url URL for request.
+ * @param {Object?} parameters.headers HTTP headers to send.
+ * @param {String|Object?} parameters.data Data to send.
+ * @param {Number?} parameters.timeout Request timeout.
+ * @param {Boolean?} parameters.unsafeHTTPS If true then requests
+ * to servers with invalid HTTPS certificates are allowed.
  * @returns {Promise<Object>} Promise for result with status object and content.
  */
-UHRBase.prototype.request = function (parameters) { };
+UHRBase.prototype.request = function (parameters) { }
 ```
 
 ##Request options example
@@ -91,11 +123,17 @@ UHRBase.prototype.request = function (parameters) { };
 }
 ```
 
-In case you do `POST`/`PUT`/`PATCH` request `data` will be passed as 
-JSON via request stream otherwise it will be passed as query string.
-Also if you put something to `data` field and use 
+In case you do `POST`/`PUT`/`PATCH` requests then `data` object will
+be passed as `application/x-www-form-urlencoded` via request stream.
+If you set header `Content-Type` to `application/json' then object will
+be sent as JSON.
+
+If `data` value is not an object then its string representation will be sent
+as `text/plain` to server.
+
+Also if you put something to `data` object and use
 `application/x-www-form-urlencoded` then this data will be 
-automatically [encoded](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/encodeURIComponent).
+automatically [percent-encoded](http://en.wikipedia.org/wiki/Percent-encoding).
 
 ##Returns promise
 Any UHR request returns [Promise](https://www.promisejs.org) for request result.
