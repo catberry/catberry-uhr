@@ -60,6 +60,28 @@ describe('UHR', function () {
 				});
 		});
 
+		it('should return error if URI scheme is not specified', function (done) {
+			var uhr = new UHR();
+
+			uhr.request({url: '//localhost:80/page'})
+				.then(function () {
+					done(new Error('Should be exception'));
+				}, function () {
+					done();
+				});
+		});
+
+		it('should return error if URI host is not specified', function (done) {
+			var uhr = new UHR();
+
+			uhr.request({url: 'http:///page'})
+				.then(function () {
+					done(new Error('Should be exception'));
+				}, function () {
+					done();
+				});
+		});
+
 		it('should return error if wrong method is specified', function (done) {
 			var uhr = new UHR();
 			uhr.request({
