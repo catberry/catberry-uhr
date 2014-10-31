@@ -60,6 +60,28 @@ describe('UHR', function () {
 				});
 		});
 
+		it('should return error if URI scheme is not specified', function (done) {
+			var uhr = new UHR();
+
+			uhr.request({url: '//localhost:80/page'})
+				.then(function () {
+					done(new Error('Should be exception'));
+				}, function () {
+					done();
+				});
+		});
+
+		it('should return error if URI host is not specified', function (done) {
+			var uhr = new UHR();
+
+			uhr.request({url: 'http:///page'})
+				.then(function () {
+					done(new Error('Should be exception'));
+				}, function () {
+					done();
+				});
+		});
+
 		it('should return error if wrong method is specified', function (done) {
 			var uhr = new UHR();
 			uhr.request({
@@ -441,7 +463,7 @@ describe('UHR', function () {
 			var server = createServer(8089, function (request, response) {
 				assert.strictEqual(request.url, '/page');
 				assert.strictEqual(request.headers['content-type'],
-					'application/x-www-form-urlencoded; charset=UTF-8');
+					'text/plain; charset=UTF-8');
 
 				var data = '';
 				request.setEncoding('utf8');
@@ -510,8 +532,8 @@ describe('UHR', function () {
 		it('should send entity as URL encoded', function (done) {
 			var entity = {
 				field: 'test',
-				field2: true,
-				field3: 100500
+				field2: 'true',
+				field3: '100500'
 			};
 			var server = createServer(8090, function (request, response) {
 				assert.strictEqual(request.url, '/page');
@@ -527,10 +549,8 @@ describe('UHR', function () {
 					var receivedEntity = querystring.parse(data);
 
 					assert.strictEqual(receivedEntity.field, entity.field);
-					assert.strictEqual(Boolean(receivedEntity.field2),
-						entity.field2);
-					assert.strictEqual(Number(receivedEntity.field3),
-						entity.field3);
+					assert.strictEqual(receivedEntity.field2, entity.field2);
+					assert.strictEqual(receivedEntity.field3, entity.field3);
 					response.end();
 					server.close(function () {
 						done();

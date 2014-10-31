@@ -34,7 +34,7 @@ module.exports = UHR;
 
 var UHRBase = require('../lib/UHRBase'),
 	Promise = require('promise'),
-	url = require('url'),
+	URI = require('catberry-uri').URI,
 	util = require('util');
 
 // if browser still does not have promises then add it.
@@ -72,32 +72,29 @@ UHR.prototype.window = null;
 /**
  * Does request with specified parameters using protocol implementation.
  * @param {Object} parameters Request parameters.
+ * @param {String} parameters.method HTTP method.
+ * @param {String} parameters.url URL for request.
+ * @param {URI} parameters.uri URI object.
+ * @param {Object} parameters.headers HTTP headers to send.
+ * @param {String|Object} parameters.data Data to send.
+ * @param {Number} parameters.timeout Request timeout.
+ * @param {Boolean} parameters.unsafeHTTPS If true then requests to servers with
+ * invalid HTTPS certificates are allowed.
  * @returns {Promise<Object>} Promise for result with status object and content.
  * @protected
  */
 UHR.prototype._doRequest = function (parameters) {
-	var self = this,
-		xhrParameters = Object.create(parameters),
-		urlInfo = url.parse(parameters.url);
-	xhrParameters.headers = this._createHeaders(parameters.headers);
+	var self = this;
 
-	Object.keys(xhrParameters.headers)
+	Object.keys(parameters.headers)
 		.forEach(function (name) {
 			if (NON_SAFE_HEADERS.hasOwnProperty(name.toLowerCase())) {
-				delete xhrParameters.headers[name];
+				delete parameters.headers[name];
 			}
 		});
 
-	if (xhrParameters.data.length > 0 &&
-		!this._isUpstreamRequest(xhrParameters.method)) {
-		xhrParameters.url +=
-			(!urlInfo.search || urlInfo.search.length === 0 ? '?' : '&') +
-			xhrParameters.data;
-	}
-
 	return new Promise(function (fulfill, reject) {
 		var requestError = null,
-			loginAndPass = String(urlInfo.auth || '').split(':'),
 			xhr = new self.window.XMLHttpRequest();
 
 		xhr.onabort = function () {
@@ -118,27 +115,30 @@ UHR.prototype._doRequest = function (parameters) {
 			}
 			var statusObject = getStatusObject(xhr),
 				content = self.convertResponse(
-					statusObject.headers['content-type'],
+					statusObject.headers,
 					xhr.responseText
 				);
 			fulfill({status: statusObject, content: content});
 		};
 
+		var user = parameters.uri.authority.userInfo ?
+				parameters.uri.authority.userInfo.user : null,
+			password = parameters.uri.authority.userInfo ?
+				parameters.uri.authority.userInfo.password : null;
 		xhr.open(
-			xhrParameters.method, xhrParameters.url, true,
-			loginAndPass[0], loginAndPass[1]
+			parameters.method, parameters.uri.toString(), true,
+			user || undefined, password || undefined
 		);
-		xhr.timeout = xhrParameters.timeout;
+		xhr.timeout = parameters.timeout;
 
-		Object.keys(xhrParameters.headers)
+		Object.keys(parameters.headers)
 			.forEach(function (headerName) {
 				xhr.setRequestHeader(
-					headerName, xhrParameters.headers[headerName]
+					headerName, parameters.headers[headerName]
 				);
 			});
 
-		xhr.send(xhrParameters.data);
-
+		xhr.send(parameters.data);
 	});
 };
 
