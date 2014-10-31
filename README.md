@@ -125,7 +125,7 @@ UHRBase.prototype.request = function (parameters) { }
 
 In case you do `POST`/`PUT`/`PATCH` requests then `data` object will
 be passed as `application/x-www-form-urlencoded` via request stream.
-If you set header `Content-Type` to `application/json' then object will
+If you set header `Content-Type` to `application/json` then object will
 be sent as JSON.
 
 If `data` value is not an object then its string representation will be sent
