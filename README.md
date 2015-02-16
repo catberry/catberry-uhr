@@ -135,7 +135,7 @@ Also if you put something to `data` object and use
 `application/x-www-form-urlencoded` then this data will be 
 automatically [percent-encoded](http://en.wikipedia.org/wiki/Percent-encoding).
 
-##Returns promise
+##Returns a promise
 All UHR requests return a [Promise](https://www.promisejs.org) for request result.
 Any error during request will reject the promise.
 
