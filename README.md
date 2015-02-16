@@ -1,7 +1,7 @@
-#Universal HTTP(S) Request for Catberry [![Build Status](https://travis-ci.org/catberry/catberry-uhr.png?branch=master)](https://travis-ci.org/catberry/catberry-uhr) [![Coverage Status](https://coveralls.io/repos/catberry/catberry-uhr/badge.png?branch=master)](https://coveralls.io/r/catberry/catberry-uhr?branch=master)
+# Universal HTTP(S) Request for Catberry [![Build Status](https://travis-ci.org/catberry/catberry-uhr.png?branch=master)](https://travis-ci.org/catberry/catberry-uhr) [![Coverage Status](https://coveralls.io/repos/catberry/catberry-uhr/badge.png?branch=master)](https://coveralls.io/r/catberry/catberry-uhr?branch=master)
 [![NPM](https://nodei.co/npm/catberry-uhr.png)](https://nodei.co/npm/catberry-uhr/)
 
-##Description
+## Description
 Catberry's modules run both at server and in browser and it is very useful to 
 have universal HTTP(S) request implementation.
 
@@ -107,7 +107,7 @@ UHRBase.prototype.delete = function (url, options) { }
 UHRBase.prototype.request = function (parameters) { }
 ```
 
-##Request options example
+## Request options example
 
 ```javascript
 {
@@ -135,7 +135,7 @@ Also if you put something to `data` object and use
 `application/x-www-form-urlencoded` then this data will be 
 automatically [percent-encoded](http://en.wikipedia.org/wiki/Percent-encoding).
 
-##Returns a promise
+## Returns a promise
 All UHR requests return a [Promise](https://www.promisejs.org) for request result.
 Any error during request will reject the promise.
 
@@ -165,7 +165,7 @@ For example, request result can be an object like this:
 
 All header names are always in a lower-case like in node.
 
-##Usage
+## Usage
 If you are using [Catberry Framework](https://github.com/catberry/catberry)
 it is already included and registered in [Service Locator](https://github.com/catberry/catberry/blob/master/docs/services/service-locator.md).
 
@@ -193,7 +193,7 @@ Store.prototype.load = function () {
 };
 ```
 
-##Contribution
+## Contribution
 If you have found a bug, please create pull request with [mocha](https://www.npmjs.org/package/mocha) 
 unit-test which reproduces it or describe all details in an issue if you can not
 implement test. If you want to propose some improvements just create an issue or
