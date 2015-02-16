@@ -5,12 +5,12 @@
 Catberry's modules run both at server and in browser and it is very useful to 
 have universal HTTP(S) request implementation.
 
-It has one interface and different implementations at server and in browser.
+It has one interface and different implementations at the server and in a browser.
 
-At server it uses node's [http.request](http://nodejs.org/api/http.html#http_event_request) 
+At the server it uses node's [http.request](http://nodejs.org/api/http.html#http_event_request)
 or [https.request](http://nodejs.org/api/https.html#https_https_request_options_callback)
 (depend on specified protocol in URL).
-At browser it uses native [XmlHttpRequest](https://developer.mozilla.org/ru/docs/Web/API/XMLHttpRequest).
+In a browser it uses native [XmlHttpRequest](https://developer.mozilla.org/ru/docs/Web/API/XMLHttpRequest).
 
 This module was developed using [HTTP/1.1v2 RFC 2616](http://www.w3.org/Protocols/rfc2616).
 
@@ -136,16 +136,16 @@ Also if you put something to `data` object and use
 automatically [percent-encoded](http://en.wikipedia.org/wiki/Percent-encoding).
 
 ##Returns promise
-Any UHR request returns [Promise](https://www.promisejs.org) for request result.
-Any error during request will reject promise.
+All UHR requests return a [Promise](https://www.promisejs.org) for request result.
+Any error during request will reject the promise.
 
 Request result consist of following:
 
 * Status object with HTTP status `code`, status `text` and response `headers`
-* Response `content` as plain text or object 
+* Response `content` as a plain text or an object
 (depends on `Content-Type` in response headers)
 
-For example request result can be such object:
+For example, request result can be an object like this:
 
 ```javascript
 {
@@ -163,20 +163,20 @@ For example request result can be such object:
 }
 ```
 
-All header names are always in lower case like in node.
+All header names are always in a lower-case like in node.
 
 ##Usage
 If you are using [Catberry Framework](https://github.com/catberry/catberry)
 it is already included and registered in [Service Locator](https://github.com/catberry/catberry/blob/master/docs/services/service-locator.md).
 
-You can just inject `$uhr` into your module and use like this:
+You can just inject `$uhr` into any module and use like this:
 
 ```javascript
-function Module($uhr) {
+function Store($uhr) {
 	this._uhr = $uhr;
 }
 
-Module.prototype.render = function (placeholderName) {
+Store.prototype.load = function () {
 	var options = {
 			timeout: 3000,
 			data: {
@@ -195,12 +195,12 @@ Module.prototype.render = function (placeholderName) {
 
 ##Contribution
 If you have found a bug, please create pull request with [mocha](https://www.npmjs.org/package/mocha) 
-unit-test which reproduces it or describe all details in issue if you can not 
-implement test. If you want to propose some improvements just create issue or 
-pull request but please do not forget to use `npm test` to be sure that your 
+unit-test which reproduces it or describe all details in an issue if you can not
+implement test. If you want to propose some improvements just create an issue or
+a pull request but please do not forget to use `npm test` to be sure that your
 code is awesome.
 
-All changes should satisfy this [Code Style Guide](https://github.com/catberry/catberry/blob/master/docs/code-style-guide.md).
+All changes should satisfy this [Code Style Guide](https://github.com/catberry/catberry/blob/4.0.0/docs/code-style-guide.md).
 
 Also your changes should be covered by unit tests using [mocha](https://www.npmjs.org/package/mocha).
 
