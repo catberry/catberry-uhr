@@ -20,7 +20,7 @@
 		"./lib/UHR.js": "./browser/UHR.js"
 	},
 	"dependencies": {
-		"catberry-uri": "^2.0.0",
+		"catberry-uri": "^2.1.0",
 		"promise": "^6.1.0"
 	},
 	"devDependencies": {
