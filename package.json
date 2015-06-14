@@ -25,7 +25,7 @@
 	},
 	"devDependencies": {
 		"istanbul-harmony": "~0.3.12",
-		"coveralls": "^2.11.2",
+		"codecov.io": "^0.1.2",
 		"mocha": "^2.2.4",
 		"jscs": "~1.6.2",
 		"jshint": "^2.6.0"

@@ -1,4 +1,4 @@
-# Universal HTTP(S) Request for Catberry [![Build Status](https://travis-ci.org/catberry/catberry-uhr.png?branch=master)](https://travis-ci.org/catberry/catberry-uhr) [![Coverage Status](https://coveralls.io/repos/catberry/catberry-uhr/badge.png?branch=master)](https://coveralls.io/r/catberry/catberry-uhr?branch=master)
+# Universal HTTP(S) Request for Catberry [![Build Status](https://travis-ci.org/catberry/catberry-uhr.png?branch=master)](https://travis-ci.org/catberry/catberry-uhr) [![codecov.io](http://codecov.io/github/catberry/catberry-uhr/coverage.svg?branch=master)](http://codecov.io/github/catberry/catberry-uhr?branch=master)
 [![NPM](https://nodei.co/npm/catberry-uhr.png)](https://nodei.co/npm/catberry-uhr/)
 
 ## Description
