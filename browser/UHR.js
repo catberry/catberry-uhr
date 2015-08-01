@@ -131,6 +131,10 @@ UHR.prototype._doRequest = function (parameters) {
 		);
 		xhr.timeout = parameters.timeout;
 
+		if (parameters.withCredentials) {
+			xhr.withCredentials = true;
+		}
+
 		Object.keys(parameters.headers)
 			.forEach(function (headerName) {
 				xhr.setRequestHeader(
