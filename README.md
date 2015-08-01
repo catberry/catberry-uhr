@@ -113,6 +113,8 @@ UHRBase.prototype.request = function (parameters) { }
 {
 	method: 'GET',
 	timeout: 30000,
+	// sets value to XMLHttpRequest.withCredentials, works only in the browser
+	withCredentials: false, 
 	unsafeHTTPS: false, // require valid certificate by default
 	headers: {
 		Cookie: 'name=value'
