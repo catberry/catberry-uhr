@@ -109,7 +109,10 @@ UHR.prototype._doRequest = function (parameters) {
 			requestError = new Error(xhr.statusText || ERROR_CONNECTION);
 			reject(requestError);
 		};
-		xhr.onloadend = function () {
+		xhr.onreadystatechange = function () {
+			if (xhr.readyState !== 4) {
+				return;
+			}
 			if (requestError) {
 				return;
 			}
@@ -180,7 +183,9 @@ function getStatusObject(xhr) {
 		});
 
 	return {
-		code: xhr.status,
+		// handle IE9 bug:
+		// http://stackoverflow.com/questions/10046972/msie-returns-status-code-of-1223-for-ajax-request
+		code: xhr.status === 1223 ? 204: xhr.status,
 		text: xhr.statusText,
 		headers: headers
 	};
