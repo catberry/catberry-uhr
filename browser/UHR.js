@@ -109,7 +109,10 @@ UHR.prototype._doRequest = function (parameters) {
 			requestError = new Error(xhr.statusText || ERROR_CONNECTION);
 			reject(requestError);
 		};
-		xhr.onloadend = function () {
+		xhr.onreadystatechange = function () {
+			if (xhr.readyState !== 4) {
+				return;
+			}
 			if (requestError) {
 				return;
 			}
@@ -180,8 +183,9 @@ function getStatusObject(xhr) {
 		});
 
 	return {
-		code: xhr.status,
-		text: xhr.statusText,
+		// handle IE9 bug: http://goo.gl/idspSr
+		code: xhr.status === 1223 ? 204 : xhr.status,
+		text: xhr.status === 1223 ? 'No Content' : xhr.statusText,
 		headers: headers
 	};
 }
