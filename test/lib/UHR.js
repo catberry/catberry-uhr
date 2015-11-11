@@ -52,7 +52,9 @@ describe('UHR', function () {
 		it('should return error if method is not specified', function (done) {
 			var uhr = new UHR();
 
-			uhr.request({url: 'http://localhost:80/page'})
+			uhr.request({
+				url: 'http://localhost:80/page'
+			})
 				.then(function () {
 					done(new Error('Should be exception'));
 				}, function () {
@@ -63,7 +65,9 @@ describe('UHR', function () {
 		it('should return error if URI scheme is not specified', function (done) {
 			var uhr = new UHR();
 
-			uhr.request({url: '//localhost:80/page'})
+			uhr.request({
+				url: '//localhost:80/page'
+			})
 				.then(function () {
 					done(new Error('Should be exception'));
 				}, function () {
@@ -74,7 +78,9 @@ describe('UHR', function () {
 		it('should return error if URI host is not specified', function (done) {
 			var uhr = new UHR();
 
-			uhr.request({url: 'http:///page'})
+			uhr.request({
+				url: 'http:///page'
+			})
 				.then(function () {
 					done(new Error('Should be exception'));
 				}, function () {
@@ -120,12 +126,11 @@ describe('UHR', function () {
 					}, function () {
 						done();
 					});
-
 			});
 
 		it('should return error if request.socket destroyed by server',
 			function (done) {
-				var server = createServer(8191, function (request, response) {
+				var server = createServer(8191, function (request) {
 					request.socket.destroy(new Error());
 					server.close();
 				});
@@ -238,13 +243,13 @@ describe('UHR', function () {
 		it('should send correct headers', function (done) {
 			var server = createServer(8093, function (request, response) {
 				assert.strictEqual(request.headers.host, 'localhost:8093');
-				assert.strictEqual(typeof(request.headers.accept), 'string');
+				assert.strictEqual(typeof (request.headers.accept), 'string');
 				assert.strictEqual(
-					typeof(request.headers['accept-charset']),
+					typeof (request.headers['accept-charset']),
 					'string'
 				);
 				assert.strictEqual(
-					typeof(request.headers['user-agent']),
+					typeof (request.headers['user-agent']),
 					'string'
 				);
 				response.end();
@@ -267,13 +272,13 @@ describe('UHR', function () {
 		it('should send correct headers when header to null', function (done) {
 			var server = createServer(8094, function (request, response) {
 				assert.strictEqual(request.headers.host, 'localhost:8094');
-				assert.strictEqual(typeof(request.headers.accept), 'string');
+				assert.strictEqual(typeof (request.headers.accept), 'string');
 				assert.strictEqual(
-					typeof(request.headers['accept-charset']),
+					typeof (request.headers['accept-charset']),
 					'undefined'
 				);
 				assert.strictEqual(
-					typeof(request.headers['user-agent']),
+					typeof (request.headers['user-agent']),
 					'string'
 				);
 				response.end();
@@ -509,7 +514,6 @@ describe('UHR', function () {
 						done();
 					});
 				});
-
 			});
 
 			var uhr = new UHR();
@@ -541,7 +545,6 @@ describe('UHR', function () {
 						done();
 					});
 				});
-
 			});
 
 			var uhr = new UHR();
