@@ -72,13 +72,13 @@ UHR.prototype.window = null;
 /**
  * Does request with specified parameters using protocol implementation.
  * @param {Object} parameters Request parameters.
- * @param {String} parameters.method HTTP method.
- * @param {String} parameters.url URL for request.
+ * @param {string} parameters.method HTTP method.
+ * @param {string} parameters.url URL for request.
  * @param {URI} parameters.uri URI object.
  * @param {Object} parameters.headers HTTP headers to send.
- * @param {String|Object} parameters.data Data to send.
- * @param {Number} parameters.timeout Request timeout.
- * @param {Boolean} parameters.unsafeHTTPS If true then requests to servers with
+ * @param {string|Object} parameters.data Data to send.
+ * @param {number} parameters.timeout Request timeout.
+ * @param {boolean} parameters.unsafeHTTPS If true then requests to servers with
  * invalid HTTPS certificates are allowed.
  * @returns {Promise<Object>} Promise for result with status object and content.
  * @protected
@@ -121,7 +121,10 @@ UHR.prototype._doRequest = function (parameters) {
 					statusObject.headers,
 					xhr.responseText
 				);
-			fulfill({status: statusObject, content: content});
+			fulfill({
+				status: statusObject,
+				content: content
+			});
 		};
 
 		var user = parameters.uri.authority.userInfo ?
