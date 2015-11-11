@@ -169,7 +169,7 @@ All header names are always in a lower-case like in node.
 
 ## Usage
 If you are using [Catberry Framework](https://github.com/catberry/catberry)
-it is already included and registered in [Service Locator](https://github.com/catberry/catberry/blob/master/docs/services/service-locator.md).
+it is already included and registered in [Service Locator](https://github.com/catberry/catberry/blob/develop/docs/index.md#service-locator).
 
 You can just inject `$uhr` into any module and use like this:
 
