@@ -1,6 +1,6 @@
 {
 	"name": "catberry-uhr",
-	"version": "4.2.2",
+	"version": "4.2.3",
 	"author": "Denis Rechkunov <denis.rechkunov@gmail.com>",
 	"description": "Universal HTTP(S) Request module for catberry framework",
 	"homepage": "https://github.com/catberry/catberry-uhr",
@@ -32,7 +32,7 @@
 	},
 
 	"engines": {
-		"node": ">=0.10"
+		"node": ">=0.12"
 	},
 
 	"scripts": {
