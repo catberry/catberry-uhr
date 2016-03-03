@@ -1,0 +1,63 @@
+{
+	"request": [
+		{
+			"name": "should return error if parameters is not an object",
+			"errorMessage": "Request parameters argument should be an object",
+			"parameters": "http://localhost:80/page"
+		},
+		{
+			"name": "should return error if method is not specified",
+			"errorMessage": "HTTP method is a required parameter",
+			"parameters": {
+				"url": "http://localhost:80/page"
+			}
+		},
+		{
+			"name": "should return error if URI protocol is not specified",
+			"errorMessage": "\"parameters.url\" should contain a protocol (scheme)",
+			"parameters": {
+				"url": "//localhost:80/page"
+			}
+		},
+		{
+			"name": "should return error if unsupported protocol",
+			"errorMessage": "\"file\" protocol (scheme) is unsupported",
+			"parameters": {
+				"url": "file://localhost:80/page",
+				"method": "GET"
+			}
+		},
+		{
+			"name": "should return error if URI host is not specified",
+			"errorMessage": "\"parameters.url\" should contain a host",
+			"parameters": {
+				"url": "http:///page"
+			}
+		},
+		{
+			"name": "should return error if wrong method is specified",
+			"errorMessage": "HTTP method is a required parameter",
+			"parameters": {
+				"url": "http://localhost:80/page",
+				"method": "wrong"
+			}
+		},
+		{
+			"name": "should return error if URL is not specified",
+			"errorMessage": "\"parameters.url\" is a required parameter",
+			"parameters": {
+				"method": "GET"
+			}
+		},
+		{
+			"name": "should return error if wrong timeout is specified",
+			"errorMessage": "Timeout should be a number",
+			"parameters": {
+				"url": "http://localhost:80/page",
+				"method": "GET",
+				"timeout": "wrong"
+			}
+		}
+
+	]
+}
