@@ -1,7 +1,6 @@
 'use strict';
 
 const UHRBase = require('../lib/UHRBase');
-const URI = require('catberry-uri').URI;
 
 const NON_SAFE_HEADERS = {
 	cookie: true,

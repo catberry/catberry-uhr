@@ -14,10 +14,10 @@ const PORT = 8081;
 /* eslint max-nested-callbacks:0 */
 /* eslint require-jsdoc:0 */
 describe('UHR', function() {
-	var server, requestHanler, uhr;
+	var server, requestHandler, uhr;
 	beforeEach(function() {
 		uhr = new UHR();
-		server = http.createServer((request, response) => requestHanler(request, response));
+		server = http.createServer((request, response) => requestHandler(request, response));
 		server.listen(PORT);
 	});
 	afterEach(function(done) {
@@ -47,7 +47,7 @@ describe('UHR', function() {
 		});
 
 		it('should return error if request.socket destroyed by server', function(done) {
-			requestHanler = request => request.socket.destroy(new Error());
+			requestHandler = request => request.socket.destroy(new Error());
 
 			uhr.request({
 				url: `http://localhost:${PORT}/page`,
@@ -60,7 +60,7 @@ describe('UHR', function() {
 		});
 
 		it('should return error if response.socket destroyed by server', function(done) {
-			requestHanler = (request, response) => response.socket.destroy(new Error());
+			requestHandler = (request, response) => response.socket.destroy(new Error());
 
 			uhr.request({
 				url: `http://localhost:${PORT}/page`,
@@ -73,7 +73,7 @@ describe('UHR', function() {
 		});
 
 		it('should end request if timeout', function(done) {
-			requestHanler = (request, response) => {
+			requestHandler = (request, response) => {
 				setTimeout(() => {
 					response.end();
 				}, 100);
@@ -91,7 +91,7 @@ describe('UHR', function() {
 		});
 
 		it('should send HTTP request with specified URL', function(done) {
-			requestHanler = (request, response) => {
+			requestHandler = (request, response) => {
 				assert.strictEqual(request.url, '/page');
 				response.end();
 			};
@@ -106,7 +106,7 @@ describe('UHR', function() {
 		});
 
 		it('should send correct headers', function(done) {
-			requestHanler = (request, response) => {
+			requestHandler = (request, response) => {
 				assert.strictEqual(request.headers.host, `localhost:${PORT}`);
 				assert.strictEqual(typeof (request.headers.accept), 'string');
 				assert.strictEqual(typeof (request.headers['accept-charset']), 'string');
@@ -124,7 +124,7 @@ describe('UHR', function() {
 		});
 
 		it('should send correct headers when header to null', function(done) {
-			requestHanler = (request, response) => {
+			requestHandler = (request, response) => {
 				assert.strictEqual(request.headers.host, `localhost:${PORT}`);
 				assert.strictEqual(typeof (request.headers.accept), 'string');
 				assert.strictEqual(typeof (request.headers['accept-charset']), 'undefined');
@@ -150,7 +150,7 @@ describe('UHR', function() {
 				test2: 100500,
 				boolean: true
 			};
-			requestHanler = (request, response) => {
+			requestHandler = (request, response) => {
 				response.setHeader('Content-Type', 'application/x-www-form-urlencoded');
 				response.end(querystring.stringify(obj));
 			};
@@ -175,7 +175,7 @@ describe('UHR', function() {
 				test2: 100500,
 				boolean: true
 			};
-			requestHanler = (request, response) => {
+			requestHandler = (request, response) => {
 				response.setHeader('Content-Type', 'application/json');
 				response.end(JSON.stringify(obj));
 			};
@@ -194,7 +194,7 @@ describe('UHR', function() {
 		});
 
 		it('should return plain text response', function(done) {
-			requestHanler = (request, response) => {
+			requestHandler = (request, response) => {
 				response.setHeader('Content-Type', 'text/plain');
 				response.end('test');
 			};
@@ -212,7 +212,7 @@ describe('UHR', function() {
 		});
 
 		it('should decode gzip response', function(done) {
-			requestHanler = (request, response) => {
+			requestHandler = (request, response) => {
 				response.setHeader('Content-Type', 'text/plain');
 				response.setHeader('Content-Encoding', 'gzip');
 				const gzip = zlib.createGzip();
@@ -233,7 +233,7 @@ describe('UHR', function() {
 		});
 
 		it('should decode deflate response', function(done) {
-			requestHanler = (request, response) => {
+			requestHandler = (request, response) => {
 				response.setHeader('Content-Type', 'text/plain');
 				response.setHeader('Content-Encoding', 'deflate');
 				const deflate = zlib.createDeflate();
@@ -258,7 +258,7 @@ describe('UHR', function() {
 				param: 'test3',
 				param2: 'test4'
 			};
-			requestHanler = (request, response) => {
+			requestHandler = (request, response) => {
 				assert.strictEqual(request.url, `/page?some=value&${querystring.stringify(query)}`);
 
 				var data = '';
@@ -290,7 +290,7 @@ describe('UHR', function() {
 				param: 'test',
 				param2: 'test2'
 			};
-			requestHanler = (request, response) => {
+			requestHandler = (request, response) => {
 				assert.strictEqual(request.url, `/page?${querystring.stringify(query)}`);
 
 				var data = '';
@@ -316,7 +316,7 @@ describe('UHR', function() {
 		});
 
 		it('should send empty entity', function(done) {
-			requestHanler = (request, response) => {
+			requestHandler = (request, response) => {
 				assert.strictEqual(request.url, '/page');
 				assert.strictEqual(request.headers['content-type'], 'text/plain; charset=UTF-8');
 
@@ -341,7 +341,7 @@ describe('UHR', function() {
 		});
 
 		it('should patch entity', function(done) {
-			requestHanler = (request, response) => {
+			requestHandler = (request, response) => {
 				assert.strictEqual(request.url, '/page');
 				assert.strictEqual(request.headers['content-type'], 'application/json; charset=UTF-8');
 
@@ -379,7 +379,7 @@ describe('UHR', function() {
 				field2: 'true',
 				field3: '100500'
 			};
-			requestHanler = (request, response) => {
+			requestHandler = (request, response) => {
 				assert.strictEqual(request.url, '/page');
 				assert.strictEqual(
 					request.headers['content-type'], 'application/x-www-form-urlencoded; charset=UTF-8'
@@ -416,7 +416,7 @@ describe('UHR', function() {
 				field2: false,
 				field3: 42
 			};
-			requestHanler = (request, response) => {
+			requestHandler = (request, response) => {
 				assert.strictEqual(request.url, '/page');
 				assert.strictEqual(request.headers['content-type'], 'application/json');
 
@@ -450,7 +450,7 @@ describe('UHR', function() {
 
 		it('should send entity as plain text', function(done) {
 			const entity = 'test entity text';
-			requestHanler = (request, response) => {
+			requestHandler = (request, response) => {
 				assert.strictEqual(request.url, '/page');
 				assert.strictEqual(
 					request.headers['content-type'], 'text/plain; charset=UTF-8'
@@ -482,7 +482,7 @@ describe('UHR', function() {
 
 		it('should receive entity when error status', function(done) {
 			const entity = 'test entity text';
-			requestHanler = (request, response) => {
+			requestHandler = (request, response) => {
 				assert.strictEqual(request.url, '/page');
 				assert.strictEqual(
 					request.headers['content-type'], 'text/plain; charset=UTF-8'
