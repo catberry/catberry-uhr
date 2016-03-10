@@ -23,7 +23,7 @@
 		"./lib/UHR.js": "./browser/UHR.js"
 	},
 	"dependencies": {
-		"catberry-uri": "^2.1.5"
+		"catberry-uri": "^3.0.0"
 	},
 	"devDependencies": {
 		"istanbul": "~0.4.2",
