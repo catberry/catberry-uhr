@@ -2,6 +2,12 @@
 
 [![Build Status](https://travis-ci.org/catberry/catberry-uhr.svg?branch=master)](https://travis-ci.org/catberry/catberry-uhr) [![codecov.io](http://codecov.io/github/catberry/catberry-uhr/coverage.svg?branch=master)](http://codecov.io/github/catberry/catberry-uhr?branch=master)
 
+## Installation
+
+```bash
+npm install catberry-uhr
+```
+
 ## Description
 Catberry's modules run both at the server and in a browser and it's very important to
 have a Universal/Isomorphic HTTP(S) Request implementation.
