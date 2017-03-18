@@ -1,6 +1,6 @@
 {
 	"name": "catberry-uhr",
-	"version": "5.0.0",
+	"version": "5.0.1",
 	"author": {
 		"name": "Denis Rechkunov",
 		"email": "denis.rechkunov@gmail.com"
@@ -23,13 +23,13 @@
 		"./lib/UHR.js": "./browser/UHR.js"
 	},
 	"dependencies": {
-		"catberry-uri": "^3.0.0"
+		"catberry-uri": "^3.2.1"
 	},
 	"devDependencies": {
-		"istanbul": "~0.4.2",
-		"codecov": "^1.0.1",
-		"mocha": "^2.4.5",
-		"eslint": "^2.2.0"
+		"istanbul": "~0.4.5",
+		"codecov": "^2.1.0",
+		"mocha": "^3.2.0",
+		"eslint": "^3.18.0"
 	},
 
 	"engines": {
