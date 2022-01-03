@@ -3,7 +3,7 @@
 	"version": "5.0.1",
 	"author": {
 		"name": "Denis Rechkunov",
-		"email": "denis.rechkunov@gmail.com"
+		"email": "denis@rdner.de"
 	},
 	"description": "Universal/Isomorphic HTTP(S) Request for Catberry Framework",
 	"homepage": "https://github.com/catberry/catberry-uhr",
@@ -12,7 +12,7 @@
 	],
 	"bugs": {
 		"url": "https://github.com/catberry/catberry-uhr/issues",
-		"email": "denis.rechkunov@gmail.com"
+		"email": "denis@rdner.de"
 	},
 	"repository": {
 		"type": "git",
